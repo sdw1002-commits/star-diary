@@ -117,6 +117,14 @@ thead th.nm{background:var(--t);padding-left:12px}
 .nbtn:disabled{opacity:.4}
 .nbtn:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .nbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.nbtns.four{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:520px}
+.nbtns.four .nbtn{justify-content:center;font-size:20px;padding:12px 14px}
+.nbtn.later{background:#7C5CD6;color:#fff}
+.plist{display:flex;flex-direction:column;gap:10px;width:100%;max-width:520px;max-height:52vh;overflow:auto}
+.pitem{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:18px;padding:10px 12px;text-align:left}
+.pitem .thumb{width:64px;height:64px;flex:0 0 64px;border-radius:12px;background:#fff}
+.pitem .pn{flex:1;font-family:var(--display);font-size:22px;color:#fff;word-break:keep-all;line-height:1.25}
+.pitem .nbtn{font-size:18px;padding:10px 18px;min-height:48px;white-space:nowrap}
 .nprog{display:flex;align-items:center;gap:10px;width:100%;font-family:var(--display);color:#B9C1E8}
 .nbar{flex:1;height:10px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden}
 .nbar i{display:block;height:100%;background:#FFD54A;width:0}
@@ -301,20 +309,29 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
 
 <div class="night" id="night" hidden>
   <div class="sky" aria-hidden="true" id="sky"></div>
-  <div class="ntop"><button class="nbtn ghost" id="nSound" aria-label="소리 다시 듣기">소리 다시 듣기</button><button class="nbtn ghost" id="nMusic">음악 끄기</button><button class="nbtn ghost" id="nRead" aria-pressed="true">카드 읽기 끄기</button><span class="sp"></span><button class="nbtn ghost" id="nClose">그만하기</button></div>
+  <div class="ntop"><button class="nbtn ghost" id="nSound" aria-label="소리 다시 듣기">소리 다시 듣기</button><button class="nbtn ghost" id="nMusic">음악 끄기</button><button class="nbtn ghost" id="nRead" aria-pressed="true">카드 읽기 끄기</button><span class="sp"></span><button class="nbtn ghost" id="nClose">전체보기</button></div>
   <div class="nstage" id="nStart">
     <svg class="bigstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#FFD54A" stroke="#FFF3B0" stroke-width=".6" stroke-linejoin="round"/></svg>
     <h2 class="nq">이현이의 하루가<br>얼마나 반짝였나요?</h2>
     <p class="nsub">별을 세어볼까요?</p>
     <button class="nbtn yes" id="nYes">YES!</button>
+    <button class="nbtn later" id="nGoPend" hidden></button>
     <p class="nday" id="nDay"></p>
+  </div>
+  <div class="nstage" id="nPend" hidden>
+    <h2 class="nq">자기 전에 할 거야</h2>
+    <p class="nsub">다 하고 나서 &lsquo;다 했어!&rsquo;를 눌러요</p>
+    <div class="plist" id="pList"></div>
+    <div class="nbtns"><button class="nbtn ghost" id="pLater">하고 나서 다시 올게</button><button class="nbtn ghost" id="pStop">오늘은 여기까지</button></div>
   </div>
   <div class="nstage" id="nCard" hidden>
     <div class="nprog"><div class="nbar"><i id="nBar"></i></div><span id="nCount"></span></div>
     <div class="bigcard nc" id="nBig"></div>
-    <div class="nbtns">
+    <div class="nbtns four">
       <button class="nbtn star" id="nStar"></button>
-      <button class="nbtn tmr" id="nTmr">내일은 빛날 거야</button>
+      <button class="nbtn tmr" id="nNo">기회가 없었어</button>
+      <button class="nbtn later" id="nLater">자기 전에 할 거야</button>
+      <button class="nbtn tmr" id="nTmr">내일 반짝해야지</button>
     </div>
     <button class="nbtn ghost small" id="nBack">이전 카드</button>
   </div>
@@ -573,27 +590,48 @@ function say(t){try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();co
 let AC=null;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;
   [1318.5,1760,2637].forEach((f,k)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+k*.08);g.gain.linearRampToValueAtTime(.18,t+k*.08+.02);g.gain.exponentialRampToValueAtTime(.001,t+k*.08+.6);o.connect(g).connect(AC.destination);o.start(t+k*.08);o.stop(t+k*.08+.7)})}catch(_){}}
 (function(){let h='';for(let k=0;k<70;k++)h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*3).toFixed(2)}s;transform:scale(${(.5+Math.random()).toFixed(2)})"></i>`;sky.innerHTML=h})();
-function nShow(which){nStart.hidden=which!=='start';nCard.hidden=which!=='card';nEnd.hidden=which!=='end'}
+function nShow(which){nStart.hidden=which!=='start';nCard.hidden=which!=='card';nEnd.hidden=which!=='end';nPend.hidden=which!=='pend'}
+/* 자기 전에 할 것: saved per night so it survives closing the screen */
+let PEND={d:'',ids:[]};
+function pendLoad(){const d=ymd(nightDate());try{const v=JSON.parse(localStorage.getItem('pend')||'null');PEND=(v&&v.d===d&&Array.isArray(v.ids))?v:{d,ids:[]}}catch(_){PEND={d,ids:[]}}PEND.ids=PEND.ids.filter(id=>HAB[id])}
+function pendSave(){try{localStorage.setItem('pend',JSON.stringify(PEND))}catch(_){}}
+function pendSet(id,on){const has=PEND.ids.includes(id);if(on&&!has)PEND.ids.push(id);if(!on&&has)PEND.ids=PEND.ids.filter(x=>x!==id);pendSave()}
+function nGoPendUI(){const n=PEND.ids.length;nGoPend.hidden=!n;nGoPend.textContent='자기 전에 할 것 '+n+'개 보기'}
+function nShowPend(){if(!PEND.ids.length){nFinish();return}
+  pList.innerHTML=PEND.ids.map(id=>{const h=HAB[id];return `<div class="pitem">${thumb(h,'')}<span class="pn">${esc(h.name)}</span><button class="nbtn star" data-pdone="${id}">${STAR}다 했어!</button></div>`}).join('');
+  nBar.style.width='100%';nShow('pend')}
+pList.addEventListener('click',e=>{const b=e.target.closest('[data-pdone]');if(!b)return;const id=b.dataset.pdone;
+  pList.querySelectorAll('button').forEach(x=>x.disabled=true);
+  writeDay(id,1);pendSet(id,false);chime();
+  play('star','반짝! 잘했어요!',()=>{if(!night.hidden&&!nPend.hidden)nShowPend()})});
+pLater.onclick=closeNight;
+pStop.onclick=()=>{nFinish()};
+nGoPend.onclick=()=>{chime();bgmStart();nShowPend()};
 const Q1='이현이의 하루가 얼마나 반짝였나요? 별을 세어볼까요?';
 function openNight(withSound){const d=nightDate();N.wk=monday(d);N.di=(d.getDay()+6)%7;
-  N.list=[];CATS.forEach(c=>act(c).forEach(it=>N.list.push(HAB[it.id])));N.i=0;
+  N.list=[];CATS.forEach(c=>act(c).forEach(it=>N.list.push(HAB[it.id])));N.i=0;pendLoad();nGoPendUI();
   nDay.textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 '+DAYS[N.di]+'요일';
   night.hidden=false;document.body.style.overflow='hidden';nShow('start');nYes.focus();bgmUI();if(withSound){bgmStart();play('q1',Q1)}}
 function closeNight(){night.hidden=true;BGM.pause();if(VA){VA.onended=null;VA.pause()}document.body.style.overflow='';try{speechSynthesis.cancel()}catch(_){};if(location.hash==='#night')history.replaceState(null,'',location.pathname+location.search+'#check');render()}
-function nRender(){const h=N.list[N.i];if(!h){nFinish();return}const c=h.cat,on=isOn(N.wk,h.id,N.di);
+function nRender(){const h=N.list[N.i];if(!h){nShowPend();return}const c=h.cat,on=isOn(N.wk,h.id,N.di);
   nBar.style.width=(N.i/N.list.length*100)+'%';nCount.textContent=(N.i+1)+' / '+N.list.length;
   nBig.style.setProperty('--c',`var(--c-${c.id})`);nBig.style.setProperty('--t',`var(--t-${c.id})`);nBig.classList.toggle('got',on);
   nBig.innerHTML=`<div class="bp">${thumb(h,'pimg')}</div><div class="bi"><div class="bt"><span class="tg">${esc(c.name)}</span>${on?'<span class="tg" style="background:#F5B700;color:#1F2430">받았어요</span>':''}</div><h3>${esc(h.name)}</h3>${h.sub?`<p>${esc(h.sub)}</p>`:''}</div>`;
-  nStar.innerHTML=STAR+'별 '+c.star+'개'; nBack.disabled=N.i===0; nStar.disabled=nTmr.disabled=false; nShow('card'); if(readOn)play(h.id,h.name.replace(/["“”]/g,''));else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}}}
-function nSet(val){const h=N.list[N.i];if(!h)return;
-  if(S.canWrite){const wk=N.wk;const cur=isOn(wk,h.id,N.di);if(cur!==(val===1)){
-    S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
-    const arr=Array.isArray(S.weeks[wk].c[h.id])?S.weeks[wk].c[h.id].slice(0,7):[0,0,0,0,0,0,0];while(arr.length<7)arr.push(0);
-    arr[N.di]=val;S.weeks[wk].c[h.id]=arr;queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c}))}}
-  else setStatus('보기 권한이라 기록되지 않아요',true);
-  nStar.disabled=nTmr.disabled=true;
-  if(val===1){chime();nBig.classList.add('got')}
-  N.i++; play(val===1?'star':'tmr',val===1?'반짝! 잘했어요!':'괜찮아, 내일은 빛날 거야.',()=>{if(!night.hidden&&!nCard.hidden)nRender()});}
+  nStar.innerHTML=STAR+'별 '+c.star+'개'; nBack.disabled=N.i===0; nBtns(false); nShow('card'); if(readOn)play(h.id,h.name.replace(/["“”]/g,''));else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}}}
+function nBtns(dis){nStar.disabled=nNo.disabled=nLater.disabled=nTmr.disabled=dis}
+function writeDay(id,val){
+  if(!S.canWrite){setStatus('보기 권한이라 기록되지 않아요',true);return}
+  const wk=N.wk;const cur=isOn(wk,id,N.di);if(cur===(val===1))return;
+  S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
+  const arr=Array.isArray(S.weeks[wk].c[id])?S.weeks[wk].c[id].slice(0,7):[0,0,0,0,0,0,0];while(arr.length<7)arr.push(0);
+  arr[N.di]=val;S.weeks[wk].c[id]=arr;queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c}))}
+const NEXT=()=>{if(!night.hidden&&!nCard.hidden)nRender()};
+function nSet(kind){const h=N.list[N.i];if(!h)return;
+  const val=kind==='star'?1:0; writeDay(h.id,val); pendSet(h.id,kind==='later');
+  nBtns(true); N.i++;
+  if(kind==='star'){chime();nBig.classList.add('got');play('star','반짝! 잘했어요!',NEXT)}
+  else if(kind==='tmr')play('tmr','괜찮아, 내일은 빛날 거야.',NEXT);
+  else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}setTimeout(NEXT,450)}}
 function nFinish(){let tot=0;const by={},got=[];
   N.list.forEach(h=>{if(isOn(N.wk,h.id,N.di)){tot+=h.cat.star;by[h.cat.id]=(by[h.cat.id]||0)+h.cat.star;got.push(h)}});
   nTotal.textContent=tot;
@@ -606,13 +644,15 @@ goNight.onclick=()=>openNight(true);
 nRead.onclick=()=>{readOn=!readOn;try{localStorage.setItem('read',readOn?'on':'off')}catch(_){};bgmUI()};
 nMusic.onclick=()=>{bgmOn=!bgmOn;try{localStorage.setItem('bgm',bgmOn?'on':'off')}catch(_){};if(bgmOn)BGM.play().catch(()=>{});else BGM.pause();bgmUI()};
 nYes.onclick=()=>{chime();bgmStart();nRender()};
-nStar.onclick=()=>nSet(1);
-nTmr.onclick=()=>nSet(0);
+nStar.onclick=()=>nSet('star');
+nNo.onclick=()=>nSet('no');
+nLater.onclick=()=>nSet('later');
+nTmr.onclick=()=>nSet('tmr');
 nBack.onclick=()=>{if(N.i>0){N.i--;nRender()}};
-nSound.onclick=()=>{bgmStart();if(!nStart.hidden)play('q1',Q1);else if(!nCard.hidden&&N.list[N.i])play(N.list[N.i].id,N.list[N.i].name.replace(/["“”]/g,''));else play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!')};
+nSound.onclick=()=>{bgmStart();if(!nStart.hidden)play('q1',Q1);else if(!nCard.hidden&&N.list[N.i])play(N.list[N.i].id,N.list[N.i].name.replace(/["“”]/g,''));else if(!nEnd.hidden)play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!')};
 nClose.onclick=closeNight; nDone.onclick=()=>{play('night','잘 자, 이현아. 좋은 꿈 꿔.',closeNight)};
-nAgain.onclick=()=>{N.i=0;nShow('start');play('q1',Q1)};
-document.addEventListener('keydown',e=>{if(night.hidden||nCard.hidden||nStar.disabled)return;if(e.key==='ArrowRight')nSet(1);if(e.key==='ArrowLeft'&&N.i>0){N.i--;nRender()}});
+nAgain.onclick=()=>{N.i=0;pendLoad();nGoPendUI();nShow('start');play('q1',Q1)};
+document.addEventListener('keydown',e=>{if(night.hidden||nCard.hidden||nStar.disabled)return;if(e.key==='ArrowRight')nSet('star');if(e.key==='ArrowLeft'&&N.i>0){N.i--;nRender()}});
 
 /* ---------- writes (one at a time per doc) ---------- */
 const queues={};
