@@ -121,11 +121,10 @@ thead th.nm{background:var(--t);padding-left:12px}
 .nbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .todaybadge{display:inline-flex;align-items:center;gap:4px;background:#FFF6D6;border:2px solid #F5B700;border-radius:999px;padding:4px 14px;font-weight:700;color:#1F2430}
 .todaybadge svg{width:22px;height:22px}.todaybadge b{font-size:22px}.todaybadge .tk{font-size:14px;color:#6B6F80}
-table.bonus{border-collapse:separate;border-spacing:0;width:100%;min-width:720px}
-table.bonus td{text-align:center;padding:8px 4px;background:#FFF9E6;border-top:2px solid #F5B700;border-bottom:2px solid #F5B700;position:relative}
-table.bonus td.nm{text-align:left;border-left:2px solid #F5B700;border-radius:14px 0 0 14px}
-table.bonus td.sum{border-right:2px solid #F5B700;border-radius:0 14px 14px 0;font-weight:700;font-size:18px}
-table.bonus td.today{background:#FFEFB3}
+#grid tr.bonusrow td{text-align:center;padding:8px 4px;background:#FFF9E6;border-top:2px solid #F5B700;border-bottom:2px solid #F5B700;position:relative}
+#grid tr.bonusrow td.nm{text-align:left}
+#grid tr.bonusrow td.sum{font-weight:700;font-size:18px}
+#grid tr.bonusrow td.today{background:#FFEFB3}
 .bhead{display:flex;align-items:center;gap:8px}.bhead .bico{color:#F5B700}.bhead .bico svg{width:30px;height:30px}.bhead b{display:block}.bhead small{display:block;color:#6B6F80;font-size:12px;word-break:keep-all}
 .bplus{min-width:52px;min-height:44px;border-radius:12px;border:2px dashed #F5B700;background:#fff;color:#8A6A00;font-weight:700;font-size:16px;cursor:pointer}
 .bplus:active{transform:scale(.94)}
@@ -135,11 +134,11 @@ table.bonus td.today{background:#FFEFB3}
 .nbtn.nbonus svg{width:20px;height:20px}
 .nbtn.nbonus.pop{animation:bpop .35s ease}
 @keyframes bpop{50%{transform:scale(1.12)}}
-table.bonus td{color:#1F2430}
+#grid tr.bonusrow td{color:#1F2430}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  table.bonus td{background:#2E2610;color:#FFE9A6;border-color:#F5B700}
-  table.bonus td.today{background:#4A3A0C}
-  table.bonus td.sum{color:#FFD54A}
+  #grid tr.bonusrow td{background:#2E2610;color:#FFE9A6;border-color:#F5B700}
+  #grid tr.bonusrow td.today{background:#4A3A0C}
+  #grid tr.bonusrow td.sum{color:#FFD54A}
   .bhead b{color:#FFE9A6}.bhead small{color:#D9C68E}
   .bplus{background:#1E212B;color:#FFD54A;border-color:#F5B700}
   .bminus{background:#5A5F70;color:#fff}
@@ -291,7 +290,6 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     </div>
     <div class="chips" id="chips"></div>
     <p class="hint" id="manualNote" hidden style="margin:0"></p>
-    <div class="scroll"><table class="bonus" id="bonusGrid"></table></div>
     <div class="scroll" id="gridWrap"><table id="grid"></table></div>
   </section>
 
@@ -492,7 +490,12 @@ function renderCheck(){
   const todayIdx=(wk===cur)?(new Date().getDay()+6)%7:-1;
   let h='<thead><tr><th class="nm">'+cat.name+' · 한 번에 ★'+cat.star+'</th>';
   DAYS.forEach((d,i)=>h+=`<th class="${i===todayIdx?'today':''}">${d}<small>${md(addDays(wk,i))}</small></th>`);
-  h+='<th>별 합계</th></tr></thead><tbody>';
+  h+='<th>별 합계</th></tr>';
+  { const bs=bonusArr(wk);
+    h+='<tr class="bonusrow"><td class="nm"><div class="bhead"><span class="bico">'+STAR+'</span><span><b>보너스 별</b><small>잘한 일이 있을 때 언제든 +1</small></span></div></td>';
+    for(let i=0;i<7;i++)h+=`<td class="${i===todayIdx?'today':''}${i>=5?' we':''}"><button class="bplus" data-bonus="${i}" aria-label="${DAYS[i]}요일 보너스 별 1개 더하기"><span class="bn">${bs[i]?'★'+bs[i]:'+1'}</span></button>${bs[i]?`<button class="bminus" data-bonus="${i}" data-d="-1" aria-label="${DAYS[i]}요일 보너스 별 1개 빼기">−</button>`:''}</td>`;
+    h+=`<td class="sum">${st.bstar||''}</td></tr>`; }
+  h+='</thead><tbody>';
   const dayCat=[0,0,0,0,0,0,0]; let catTot=0;
   act(cat).forEach(it=>{const id=it.id,name=it.name;
     let row=0;
@@ -503,11 +506,6 @@ function renderCheck(){
   });
   h+='</tbody><tfoot><tr><td class="nm">하루 별 합계</td>'+dayCat.map((v,i)=>`<td class="${i>=5?'we':''}">${v||''}</td>`).join('')+`<td class="tot">${catTot}</td></tr></tfoot>`;
   grid.innerHTML=h;
-  const bs=bonusArr(wk);
-  let b='<tbody><tr><td class="nm"><div class="bhead"><span class="bico">'+STAR+'</span><span><b>보너스 별</b><small>잘한 일이 있을 때 언제든 +1</small></span></div></td>';
-  for(let i=0;i<7;i++)b+=`<td class="${i===todayIdx?'today':''}${i>=5?' we':''}"><button class="bplus" data-bonus="${i}" aria-label="${DAYS[i]}요일 보너스 별 1개 더하기"><span class="bn">${bs[i]?'★'+bs[i]:'+1'}</span></button>${bs[i]?`<button class="bminus" data-bonus="${i}" data-d="-1" aria-label="${DAYS[i]}요일 보너스 별 1개 빼기">−</button>`:''}</td>`;
-  b+=`<td class="sum">${st.bstar||''}</td></tr></tbody>`;
-  bonusGrid.innerHTML=b;
 }
 function renderTrend(){
   const ks=allWeeks(); const cur=monday(new Date());
