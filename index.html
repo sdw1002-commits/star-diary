@@ -130,6 +130,11 @@ table.bonus td.today{background:#FFEFB3}
 .bplus{min-width:52px;min-height:44px;border-radius:12px;border:2px dashed #F5B700;background:#fff;color:#8A6A00;font-weight:700;font-size:16px;cursor:pointer}
 .bplus:active{transform:scale(.94)}
 .bminus{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;border:0;background:#E9E3CF;color:#6B6F80;font-size:14px;line-height:1;cursor:pointer;padding:0}
+.nbonusrow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+.nbtn.nbonus{background:transparent;border:2px dashed #FFD54A;color:#FFD54A;font-size:17px;min-height:44px;padding:8px 18px;display:inline-flex;align-items:center;gap:6px}
+.nbtn.nbonus svg{width:20px;height:20px}
+.nbtn.nbonus.pop{animation:bpop .35s ease}
+@keyframes bpop{50%{transform:scale(1.12)}}
 .nbtns.four{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:520px}
 .nbtns.four .nbtn{justify-content:center;font-size:20px;padding:12px 14px}
 .nbtn.later{background:#7C5CD6;color:#fff}
@@ -363,7 +368,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
       <button class="nbtn later" id="nLater">자기 전에 할 거야</button>
       <button class="nbtn tmr" id="nTmr">내일 반짝해야지</button>
     </div>
-    <button class="nbtn ghost small" id="nBack">이전 카드</button>
+    <div class="nbonusrow"><button class="nbtn ghost small" id="nBack">이전 카드</button><button class="nbtn nbonus" id="nBonus" aria-label="보너스 별 1개 더하기"></button></div>
   </div>
   <div class="nstage" id="nEnd" hidden>
     <p class="nsub">오늘 이현이가 반짝인 별은 모두</p>
@@ -666,7 +671,10 @@ function nRender(){const h=N.list[N.i];if(!h){nShowPend();return}const c=h.cat,o
   nBar.style.width=(N.i/N.list.length*100)+'%';nCount.textContent=(N.i+1)+' / '+N.list.length;
   nBig.style.setProperty('--c',`var(--c-${c.id})`);nBig.style.setProperty('--t',`var(--t-${c.id})`);nBig.classList.toggle('got',on);
   nBig.innerHTML=`<div class="bp">${thumb(h,'pimg')}</div><div class="bi"><div class="bt"><span class="tg">${esc(c.name)}</span>${on?'<span class="tg" style="background:#F5B700;color:#1F2430">받았어요</span>':''}</div><h3>${esc(h.name)}</h3>${h.sub?`<p>${esc(h.sub)}</p>`:''}</div>`;
-  nStar.innerHTML=STAR+'별 '+c.star+'개'; nBack.disabled=N.i===0; nBtns(false); nShow('card'); if(readOn)play(h.id,h.name.replace(/["“”]/g,''));else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}}}
+  nStar.innerHTML=STAR+'별 '+c.star+'개'; nBack.disabled=N.i===0; nBtns(false); nBonusUI(); nShow('card'); if(readOn)play(h.id,h.name.replace(/["“”]/g,''));else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}}}
+function nBonusUI(){const n=bonusArr(N.wk)[N.di];nBonus.innerHTML=STAR+'보너스 별 +1'+(n?` <small>(오늘 ★${n})</small>`:'')}
+function nAddBonus(){if(!S.canWrite)return;const wk=N.wk,w=wkEdit(wk);w.bonus[N.di]+=1;queueWrite('weeks/'+wk,()=>wkData(wk));
+  chime();nBonusUI();nBonus.classList.remove('pop');void nBonus.offsetWidth;nBonus.classList.add('pop');render()}
 function nBtns(dis){nStar.disabled=nNo.disabled=nLater.disabled=nTmr.disabled=dis}
 function writeDay(id,val){
   if(!S.canWrite){setStatus('보기 권한이라 기록되지 않아요',true);return}
@@ -696,6 +704,7 @@ nRead.onclick=()=>{readOn=!readOn;try{localStorage.setItem('read',readOn?'on':'o
 nMusic.onclick=()=>{bgmOn=!bgmOn;try{localStorage.setItem('bgm',bgmOn?'on':'off')}catch(_){};if(bgmOn)BGM.play().catch(()=>{});else BGM.pause();bgmUI()};
 nYes.onclick=()=>{chime();bgmStart();nRender()};
 nStar.onclick=()=>nSet('star');
+nBonus.onclick=nAddBonus;
 nNo.onclick=()=>nSet('no');
 nLater.onclick=()=>nSet('later');
 nTmr.onclick=()=>nSet('tmr');
