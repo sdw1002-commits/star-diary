@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이현이 별 기록장</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="별 기록장">
+<meta name="robots" content="noindex">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{
+  /* 아이 습관 기록 앱: 위 요약 → 탭(체크·변화·저금통) → 표/차트 */
+  --bg:#F6F7FB; --panel:#FFFFFF; --ink:#1F2430; --muted:#5B6274; --line:#E3E6EE;
+  --star:#F5B700; --star-soft:#FFF4CC; --accent:#2563C9; --good:#1E8E4E; --bad:#C2410C;
+  --we:#FFF8E6;
+  --display:'Jua','Noto Sans KR',sans-serif; --body:'Noto Sans KR',system-ui,sans-serif;
+  --c-basic:#2563C9; --t-basic:#E6EFFC; --c-home:#2E7D32; --t-home:#E5F3E6;
+  --c-study:#6D3FC4; --t-study:#EFE8FB; --c-move:#B4530A; --t-move:#FDEEDF;
+  --c-share:#B83269; --t-share:#FBE6EF; --c-manner:#0F766E; --t-manner:#DDF3F0;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14161D; --panel:#1E212B; --ink:#ECEEF4; --muted:#A3A9B8; --line:#323644;
+  --star-soft:#3A3115; --we:#2A261A; --accent:#7FA8F0; --good:#5BC98A; --bad:#F08A5D;
+  --c-basic:#7FA8F0; --t-basic:#22304A; --c-home:#6CC071; --t-home:#1F3322;
+  --c-study:#B39AF0; --t-study:#2C2442; --c-move:#F0A060; --t-move:#3A2A1C;
+  --c-share:#F07FAE; --t-share:#3D2230; --c-manner:#5CCFBF; --t-manner:#16332F; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#14161D; --panel:#1E212B; --ink:#ECEEF4; --muted:#A3A9B8; --line:#323644;
+  --star-soft:#3A3115; --we:#2A261A; --accent:#7FA8F0; --good:#5BC98A; --bad:#F08A5D;
+  --c-basic:#7FA8F0; --t-basic:#22304A; --c-home:#6CC071; --t-home:#1F3322;
+  --c-study:#B39AF0; --t-study:#2C2442; --c-move:#F0A060; --t-move:#3A2A1C;
+  --c-share:#F07FAE; --t-share:#3D2230; --c-manner:#5CCFBF; --t-manner:#16332F; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--display);font-weight:400;font-size:30px;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:400;font-size:21px;margin:0}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.status{font-size:13px;color:var(--muted)}
+.status.warn{color:var(--bad)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.tile .k{font-size:13px;color:var(--muted)}
+.tile .v{font-family:var(--display);font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--muted)}
+.meter{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--star);border-radius:99px}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line)}
+.tabs a{font-family:var(--display);font-size:18px;padding:8px 14px;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs a.on{color:var(--ink);border-color:var(--star)}
+.tabs a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:6px 12px;min-height:38px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.wk{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--c);background:var(--panel);color:var(--c);border-radius:99px;padding:5px 12px;font-family:var(--display);font-size:16px;display:flex;gap:6px;align-items:center;min-height:38px}
+.chip b{font-weight:400;background:var(--t);border-radius:99px;padding:0 8px;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--c);color:#fff}
+.chip.on b{background:rgba(255,255,255,.25)}
+.scroll{overflow-x:auto;border:2px solid var(--c);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{border-bottom:1px solid var(--line);padding:0;text-align:center;font-variant-numeric:tabular-nums}
+thead th{background:var(--t);color:var(--c);font-family:var(--display);font-weight:400;font-size:17px;height:44px}
+thead th small{display:block;font-family:var(--body);font-size:11px;color:var(--muted);line-height:1}
+th.today{background:var(--c);color:#fff}
+th.today small{color:#fff}
+td.nm,th.nm{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1;min-width:220px}
+thead th.nm{background:var(--t);padding-left:12px}
+.hab{display:flex;align-items:center;gap:8px;padding:6px 10px;width:100%;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:zoom-in}
+.hab:hover .n{text-decoration:underline;text-decoration-color:var(--c);text-underline-offset:3px}
+.lk{border:0;background:transparent;color:inherit;font:inherit;padding:0;text-align:left;cursor:zoom-in}
+.lk:hover{text-decoration:underline}
+.ov{position:fixed;inset:0;background:rgba(15,18,26,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.bigcard{width:min(340px,100%);background:#fff;color:#1F2430;border:5px solid var(--c);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.bigcard .bp{background:var(--t);border-bottom:5px solid var(--c);display:flex;justify-content:center;padding:16px}
+.bigcard .bp .pimg{width:260px;height:260px;max-width:100%;border-radius:18px;object-fit:cover;background:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:120px;color:var(--c)}
+.bigcard .bi{padding:14px 16px 18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.bigcard .bt{align-self:stretch;display:flex;justify-content:space-between;align-items:center}
+.bigcard .tg{background:var(--c);color:#fff;font-family:var(--display);border-radius:99px;padding:4px 12px}
+.bigcard h3{margin:0;font-family:var(--display);font-weight:400;font-size:32px;line-height:1.2;word-break:keep-all;text-wrap:balance}
+.bigcard p{margin:0;font-weight:700;color:#3F4554;white-space:pre-line;word-break:keep-all}
+.bigcard .bs{align-self:stretch;background:var(--t);border:2px dashed var(--c);border-radius:14px;padding:8px;font-family:var(--display);font-size:24px;color:var(--c);display:flex;justify-content:center;align-items:center;gap:6px}
+.bigcard .bs svg{width:34px;height:34px;color:#F5B700}
+.close{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);font-size:22px;color:#1F2430}
+.nightbtn{background:#1E2A5A;border-color:#1E2A5A;color:#FFE38A;font-family:var(--display);font-size:17px}
+.night{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at 50% 0%,#2B3A7A 0%,#151C3F 55%,#0B1028 100%);color:#F3F5FF;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:16px}
+.sky{position:fixed;inset:0;pointer-events:none}
+.sky i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.7}
+@media (prefers-reduced-motion:no-preference){.sky i{animation:tw 3s ease-in-out infinite}.bigstar{animation:pulse 2.4s ease-in-out infinite}}
+@keyframes tw{50%{opacity:.15}}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.ntop{display:flex;width:100%;max-width:640px;gap:8px;position:relative}
+.nstage{position:relative;flex:1;width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:8px 0 24px}
+.bigstar{width:130px;height:130px;filter:drop-shadow(0 0 24px rgba(255,213,74,.6))}
+.nq{font-family:var(--display);font-weight:400;font-size:34px;line-height:1.3;margin:0;text-wrap:balance}
+.nsub{font-family:var(--display);font-size:24px;margin:0;color:#FFE38A}
+.nday{margin:0;color:#B9C1E8;font-size:14px}
+.nbtn{font-family:var(--display);font-size:22px;border-radius:999px;border:0;padding:12px 28px;min-height:56px;cursor:pointer}
+.nbtn.yes{background:#FFD54A;color:#1E2A5A;font-size:30px;padding:14px 56px;box-shadow:0 0 30px rgba(255,213,74,.45)}
+.nbtn.star{background:#FFD54A;color:#1E2A5A;display:flex;align-items:center;gap:8px}
+.nbtn.star svg{width:30px;height:30px}
+.nbtn.tmr{background:#3B4A8F;color:#E6EAFF}
+.nbtn.ghost{background:rgba(255,255,255,.12);color:#E6EAFF;font-size:15px;min-height:40px;padding:8px 16px}
+.nbtn.small{font-size:14px}
+.nbtn:disabled{opacity:.4}
+.nbtn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.nbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.nprog{display:flex;align-items:center;gap:10px;width:100%;font-family:var(--display);color:#B9C1E8}
+.nbar{flex:1;height:10px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden}
+.nbar i{display:block;height:100%;background:#FFD54A;width:0}
+.bigcard.nc{width:min(340px,100%)}
+.bigcard.nc.got{box-shadow:0 0 0 4px #FFD54A,0 0 40px rgba(255,213,74,.6)}
+.ntotal{display:flex;align-items:center;gap:6px;font-family:var(--display);font-size:96px;line-height:1;color:#FFD54A}
+.ntotal svg{width:84px;height:84px}
+.ntotal small{font-size:36px}
+.nchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.nchips span{background:rgba(255,255,255,.12);border-radius:99px;padding:4px 12px;font-size:14px}
+.nthumbs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.nthumbs img,.nthumbs span{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#fff;color:#1E2A5A;display:flex;align-items:center;justify-content:center;font-family:var(--display);box-shadow:0 0 0 2px #FFD54A}
+.nweek{margin:0;color:#E6EAFF;font-size:15px;line-height:1.6;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 14px}
+.tabsetbox{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:10px 12px}
+.tabset{flex-direction:row;align-items:center;gap:6px;font-size:15px;color:var(--ink);border:2px solid var(--c);border-radius:99px;padding:4px 12px;cursor:pointer}
+.tabset input{min-height:0;width:18px;height:18px;accent-color:var(--c)}
+.ed{display:flex;flex-direction:column}
+.er{display:grid;grid-template-columns:auto 1fr 1.3fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.er .thumbbtn{border:2px dashed var(--line);background:transparent;border-radius:10px;padding:2px;cursor:pointer}
+.er .thumb{width:48px;height:48px;flex-basis:48px}
+.er textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;resize:vertical;min-height:38px;width:100%}
+.er input{width:100%}
+.ops{display:flex;gap:4px}
+.ops .btn{padding:4px 10px}
+.btn.danger{color:var(--bad)}
+.picker{background:var(--panel);color:var(--ink);border-radius:18px;padding:16px;width:min(640px,100%);max-height:86vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.pgrid button{border:2px solid var(--line);border-radius:10px;padding:2px;background:#fff;aspect-ratio:1}
+.pgrid button:hover,.pgrid button.sel{border-color:var(--accent)}
+.pgrid img{width:100%;height:100%;object-fit:cover;border-radius:7px;display:block}
+@media (max-width:720px){.er{grid-template-columns:auto 1fr;}.er .ops{grid-column:1/-1;justify-content:flex-end}}
+.thumb{width:34px;height:34px;border-radius:8px;object-fit:cover;flex:0 0 34px;background:var(--t);display:flex;align-items:center;justify-content:center;font-family:var(--display);color:var(--c)}
+.hab span.n{flex:1;font-weight:500;word-break:keep-all;line-height:1.25}
+.pp{font-family:var(--display);color:var(--c);background:var(--t);border-radius:99px;padding:1px 8px;font-size:14px;white-space:nowrap}
+tr:nth-child(even) td{background-image:linear-gradient(rgba(127,127,140,.06),rgba(127,127,140,.06))}
+td.we{background:var(--we)}
+td.cell{height:46px}
+.tog{width:44px;height:40px;border:0;background:transparent;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--line)}
+.tog svg{width:28px;height:28px}
+.tog:hover{background:var(--star-soft)}
+.tog.done{color:var(--star)}
+.tog.done svg path{stroke:#B98800}
+.tog:not(.done) svg path{fill:transparent;stroke:#AEB5C2;stroke-dasharray:2 1.6}
+td.sum{font-family:var(--display);font-size:17px;background:var(--t)}
+tfoot td{font-family:var(--display);font-size:17px;height:42px;border-top:2px solid var(--c);border-bottom:0}
+tfoot td.nm{padding-left:12px;color:var(--c)}
+tfoot td.tot{background:var(--star-soft)}
+.hint{font-size:13px;color:var(--muted)}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.lv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.lvc{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;border-top:5px solid var(--lc)}
+.lvc h3{margin:0;font-family:var(--display);font-weight:400;font-size:17px;display:flex;justify-content:space-between}
+.lvc h3 b{font-weight:400;color:var(--muted)}
+.hx{display:flex;align-items:center;gap:6px;font-size:13.5px;line-height:1.3}
+.hx i{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.hx span{flex:1;word-break:keep-all}
+.hx em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+.cmp{width:100%;min-width:0}
+.cmp td,.cmp th{padding:8px 6px;text-align:right}
+.cmp th{font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted);background:transparent;height:auto}
+.cmp td:first-child,.cmp th:first-child{text-align:left}
+.up{color:var(--good)} .down{color:var(--bad)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%}
+.bank{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.big{font-family:var(--display);font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:99px;padding:3px 10px;font-size:13px;font-weight:700}
+.pill.ok{background:var(--good);color:#fff}
+.pill.wait{background:var(--line);color:var(--muted)}
+form{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-height:38px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.li:last-child{border-bottom:0}
+.li .d{color:var(--muted);font-size:13px;min-width:96px}
+.li .a{font-family:var(--display);font-size:17px;margin-left:auto}
+.x{border:0;background:transparent;color:var(--muted);min-height:32px;padding:0 8px}
+[hidden]{display:none!important}
+@media (max-width:720px){.lv{grid-template-columns:1fr 1fr}.tiles{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}h1{font-size:25px}}
+@media (prefers-reduced-motion:no-preference){.meter i,.bar i{transition:width .3s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>이현이의 반짝이는 하루</h1>
+    <button class="btn nightbtn" id="goNight">오늘 밤 별 세기</button>
+    <span class="status" id="stat">불러오는 중…</span>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">이번 주 별</span><span class="v" id="tWeek">0</span><span class="s" id="tWeekS">지난주 0개</span></div>
+    <div class="tile"><span class="k">이번 주 모은 돈</span><span class="v" id="tAllow">0원</span><span class="s" id="tAllowS">별 1개 = 10원</span></div>
+    <div class="tile"><span class="k">저금통</span><span class="v" id="tBank">0원</span><div class="meter"><i id="tBankBar" style="width:0%"></i></div><span class="s" id="tBankS">10,000원 넘으면 쓸 수 있어요</span></div>
+    <div class="tile"><span class="k">지금까지 모은 별</span><span class="v" id="tAll">0</span><span class="s" id="tAllS">모은 돈 합계 0원</span></div>
+  </div>
+
+  <nav class="tabs" aria-label="보기">
+    <a href="#check" id="tab-check">체크하기</a>
+    <a href="#trend" id="tab-trend">변화 보기</a>
+    <a href="#bank" id="tab-bank">저금통</a>
+    <a href="#edit" id="tab-edit">편집</a>
+  </nav>
+
+  <section class="panel" id="v-check">
+    <div class="row">
+      <button class="btn" id="prev" aria-label="지난주">‹</button>
+      <span class="wk" id="wkLabel"></span>
+      <button class="btn" id="next" aria-label="다음 주">›</button>
+      <button class="btn" id="thisWeek">이번 주</button>
+      <span class="sp"></span>
+      <span class="hint">칸을 누르면 별이 켜지고, 다시 누르면 꺼져요</span>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="hint" id="manualNote" hidden style="margin:0"></p>
+    <div class="scroll" id="gridWrap"><table id="grid"></table></div>
+  </section>
+
+  <section class="panel" id="v-trend" hidden>
+    <div class="row"><h2>주별 별 개수</h2><span class="sp"></span><span class="hint">항목별 기록이 있는 주부터 보여요</span></div>
+    <div id="chart"></div>
+    <div>
+      <div class="row" style="margin-bottom:8px"><h2>습관 상태</h2><span class="sp"></span><span class="hint" id="lvBasis"></span></div>
+      <div class="lv" id="levels"></div>
+      <p class="hint" style="margin:8px 0 0">습관이 된 것: 2주 연속 주 6회 이상 · 꾸준히 잘한 것: 주 5회 이상 · 조금 더 연습해볼 것: 주 2~4회 · 아직 어려운 것: 주 0~1회</p>
+    </div>
+    <div class="grid2">
+      <div>
+        <h2 style="margin-bottom:8px">카테고리별 변화</h2>
+        <table class="cmp" id="catCmp"></table>
+      </div>
+      <div>
+        <div class="row" style="margin-bottom:8px"><h2>습관별 변화</h2><span class="sp"></span><select id="habCat" class="btn" aria-label="카테고리"></select></div>
+        <table class="cmp" id="habCmp"></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="v-bank" hidden>
+    <div class="bank">
+      <div><div class="hint">저금통에 있는 돈</div><div class="big" id="bBal">0원</div></div>
+      <span class="pill wait" id="bPill">아직 모으는 중</span>
+      <div style="flex:1;min-width:200px"><div class="meter" style="height:14px"><i id="bBar" style="width:0%"></i></div><div class="hint" id="bLeft"></div></div>
+    </div>
+    <p class="hint" style="margin:0">모은 별은 1개에 10원씩, 매주 일요일에 한 주 치를 정산해서 저금통에 넣어요. 저금통이 10,000원을 넘으면 쓸 수 있어요.</p>
+    <form id="spend">
+      <label for="spAmt">쓴 금액(원)<input id="spAmt" type="number" min="100" step="100" inputmode="numeric" required></label>
+      <label for="spMemo">어디에 썼나요<input id="spMemo" type="text" maxlength="40" placeholder="예: 장난감 자동차"></label>
+      <button class="btn primary" id="spBtn" type="submit">저금통에서 쓰기</button>
+    </form>
+    <p class="hint" id="spMsg" style="margin:0"></p>
+    <div class="grid2">
+      <div><h2 style="margin-bottom:6px">들어온 돈</h2><div class="list" id="inList"></div></div>
+      <div><h2 style="margin-bottom:6px">쓴 돈</h2><div class="list" id="outList"></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="v-edit" hidden>
+    <div class="row"><h2>항목 관리</h2><span class="sp"></span><span class="hint">고친 내용은 칸을 벗어나면 바로 저장돼요</span></div>
+    <div class="tabsetbox"><b>사용할 탭</b><div id="eTabs" class="row"></div><span class="hint">체크한 탭만 체크하기·별 세기·변화 보기에 나와요. 끈 탭의 지난 기록은 그대로 남아요.</span></div>
+    <div class="tabsetbox"><b>기록 백업</b><div class="row"><button type="button" class="btn" id="bkOut">백업 파일 저장</button><button type="button" class="btn" id="bkIn">백업 불러오기</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div><span class="hint" id="bkMsg">기록은 이 아이패드에만 저장돼요. 가끔 백업 파일을 저장해 두세요.</span></div>
+    <div class="chips" id="eChips"></div>
+    <div class="ed" id="eList"></div>
+    <form id="addForm" class="panel" style="padding:12px;gap:8px">
+      <h2 style="font-size:18px">새 항목 추가</h2>
+      <div class="er" style="border:0;padding:0">
+        <button type="button" class="thumbbtn" id="addImgBtn" aria-label="그림 고르기"><span class="thumb">+</span></button>
+        <label for="addName">이름<input id="addName" maxlength="60" required placeholder="예: 물 마시기"></label>
+        <label for="addSub">설명<textarea id="addSub" maxlength="120" rows="1" placeholder="예: 하루에 컵으로 5번"></textarea></label>
+        <button class="btn primary" type="submit">추가</button>
+      </div>
+    </form>
+    <div id="offWrap"><h2 style="font-size:18px;margin-bottom:6px">지운 항목</h2><p class="hint" style="margin:0 0 6px">지운 항목의 지난 기록과 별은 그대로 남아요. 되살리면 다시 체크판에 나와요.</p><div class="list" id="offList"></div></div>
+  </section>
+</div>
+
+<div class="night" id="night" hidden>
+  <div class="sky" aria-hidden="true" id="sky"></div>
+  <div class="ntop"><button class="nbtn ghost" id="nSound" aria-label="소리 다시 듣기">소리 다시 듣기</button><button class="nbtn ghost" id="nMusic">음악 끄기</button><button class="nbtn ghost" id="nRead" aria-pressed="true">카드 읽기 끄기</button><span class="sp"></span><button class="nbtn ghost" id="nClose">그만하기</button></div>
+  <div class="nstage" id="nStart">
+    <svg class="bigstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#FFD54A" stroke="#FFF3B0" stroke-width=".6" stroke-linejoin="round"/></svg>
+    <h2 class="nq">이현이의 하루가<br>얼마나 반짝였나요?</h2>
+    <p class="nsub">별을 세어볼까요?</p>
+    <button class="nbtn yes" id="nYes">YES!</button>
+    <p class="nday" id="nDay"></p>
+  </div>
+  <div class="nstage" id="nCard" hidden>
+    <div class="nprog"><div class="nbar"><i id="nBar"></i></div><span id="nCount"></span></div>
+    <div class="bigcard nc" id="nBig"></div>
+    <div class="nbtns">
+      <button class="nbtn star" id="nStar"></button>
+      <button class="nbtn tmr" id="nTmr">내일은 빛날 거야</button>
+    </div>
+    <button class="nbtn ghost small" id="nBack">이전 카드</button>
+  </div>
+  <div class="nstage" id="nEnd" hidden>
+    <p class="nsub">오늘 이현이는</p>
+    <div class="ntotal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#FFD54A"/></svg><span id="nTotal">0</span><small>개</small></div>
+    <p class="nsub">만큼 반짝였어요!</p>
+    <div class="nchips" id="nChips"></div>
+    <div class="nthumbs" id="nThumbs"></div>
+    <p class="nweek" id="nWeek"></p>
+    <div class="nbtns"><button class="nbtn ghost" id="nAgain">처음부터 다시</button><button class="nbtn yes" id="nDone">잘 자, 이현아</button></div>
+  </div>
+</div>
+
+<div class="ov" id="cardOv" hidden><div class="bigcard" id="bigCard" role="dialog" aria-modal="true" aria-label="카드 크게 보기"></div></div>
+<div class="ov" id="pickOv" hidden><div class="picker" role="dialog" aria-modal="true" aria-label="그림 고르기">
+  <div class="row"><h2>그림 고르기</h2><span class="sp"></span><button class="btn" id="pickClose">닫기</button></div>
+  <div class="row"><label for="upFile" class="btn" style="flex-direction:row;color:var(--ink);font-size:15px;align-items:center">내 사진 올리기<input id="upFile" type="file" accept="image/*" style="display:none"></label><button class="btn" id="pickNone">그림 없이</button><span class="hint">올린 사진은 작게 줄여서 저장돼요</span></div>
+  <div class="pgrid" id="pgrid"></div>
+</div></div>
+
+<script>
+const DEF=[
+ {id:'basic',name:'기본 습관',star:1,items:[{"id": "b01", "name": "아침 저녁 인사", "img": "img/b01.svg", "sub": "\"잘 잤어?\" \"잘 자~\""},{"id": "b02", "name": "응가 스스로 해결하기", "img": "img/04.jpg", "sub": "뒤처리·물 내리기·손 씻기"},{"id": "b03", "name": "양치, 세수하기", "img": "img/01.jpg", "sub": "아침·저녁 스스로"},{"id": "b04", "name": "스스로 옷 꺼내서 입기", "img": "img/05.jpg", "sub": "단추·지퍼도 해보기"},{"id": "b05", "name": "유산균/비타민 먹기", "img": "img/b05.svg", "sub": "아침에 잊지 않고 먹기"},{"id": "b06", "name": "신발 정리", "img": "img/07.jpg", "sub": "현관에 가지런히"},{"id": "b07", "name": "집에 오면 손 씻기", "img": "img/02.jpg", "sub": "들어오자마자 비누로 뽀득뽀득"},{"id": "b08", "name": "하원 후에 가방 정리", "img": "img/09.jpg", "sub": "물통·수저통 꺼내기"},{"id": "b09", "name": "옷은 빨래통에", "img": "img/06.jpg", "sub": "벗은 옷 바로 넣기"},{"id": "b10", "name": "해야 할 것 먼저 하고 놀기", "img": "img/b10.svg", "sub": "숙제·정리 먼저,\n놀이는 그다음"},{"id": "b11", "name": "편식하지 않기", "img": "img/11.jpg", "sub": "채소도 골고루 냠냠"},{"id": "b12", "name": "식사 후 그릇 갖다두기", "img": "img/12.jpg", "sub": "다 먹으면 싱크대로"},{"id": "b13", "name": "스스로 씻기(샤워)", "img": "img/03.jpg", "sub": "혼자서 깨끗하게"},{"id": "b14", "name": "내일 준비물 챙기기", "img": "img/08.jpg", "sub": "유치원 가방 스스로"},{"id": "b15", "name": "잠자기 전 장난감 정리", "img": "img/10.jpg", "sub": "놀고 나면 제자리에"},{"id": "b16", "name": "제시간에 자기", "img": "img/14.jpg", "sub": "약속한 시간에 잠자리로"}]},
+ {id:'manner',name:'예절',star:1,items:[{"id": "r01", "name": "식사예절", "img": "img/13.jpg", "sub": "자리에 앉아 끝까지 먹기\n\"잘 먹겠습니다\"\n\"잘 먹었습니다\""},{"id": "r02", "name": "먼저 인사하기", "img": "img/15.jpg", "sub": "공손하게 \"안녕하세요~\"\n버스선생님, 선생님,\n이모들, 어른들"},{"id": "r03", "name": "\"고맙습니다, 고마워\"", "img": "img/44.jpg", "sub": "도움받으면 바로"},{"id": "r04", "name": "\"미안해\"", "img": "img/45.jpg", "sub": "실수하면 먼저 사과"},{"id": "r05", "name": "존댓말 쓰기", "img": "img/46.jpg", "sub": "어른께 \"~요\" 붙이기"},{"id": "r06", "name": "\"다녀오겠습니다\" \"다녀왔습니다\"", "img": "img/47.jpg", "sub": "나갈 때·들어올 때 인사"},{"id": "r07", "name": "짜증 내지 않고 말하기", "img": "img/48.jpg", "sub": "숨 한 번 쉬고 차분하게"},{"id": "r08", "name": "노크하기", "img": "img/49.jpg", "sub": "방·화장실 들어가기 전 똑똑"},{"id": "r09", "name": "기침 예절", "img": "img/50.jpg", "sub": "팔꿈치로 입 가리기"}]},
+ {id:'home',name:'집안일 돕기',star:3,items:[{"id": "h01", "name": "후추 밥·물 주기", "img": "img/16.jpg", "sub": "그릇에 사료·물 채우기"},{"id": "h02", "name": "배변판 깔아주기", "img": "img/17.jpg", "sub": "새 패드로 바꿔 주기"},{"id": "h03", "name": "수저·컵 놓기", "img": "img/18.jpg", "sub": "식사 전 식탁 차리기"},{"id": "h04", "name": "빨래 개기", "img": "img/19.jpg", "sub": "양말 짝 맞추기"},{"id": "h05", "name": "분리수거", "img": "img/20.jpg", "sub": "플라스틱·캔·종이 나누기"},{"id": "h06", "name": "장 본 물건 정리", "img": "img/21.jpg", "sub": "냉장고·제자리에 넣기"},{"id": "h07", "name": "청소 돕기", "img": "img/22.jpg", "sub": "청소기·밀대 함께"},{"id": "h08", "name": "요리 돕기", "img": "img/23.jpg", "sub": "계란 깨기·채소 씻기"}]},
+ {id:'study',name:'성장',star:3,items:[{"id": "s01", "name": "유치원 숙제", "img": "img/28.jpg", "sub": "스스로 끝까지 하기"},{"id": "s02", "name": "한글 공부", "img": "img/26.jpg", "sub": "쓰기 학습지 1장"},{"id": "s03", "name": "수학 공부", "img": "img/27.jpg", "sub": "수 놀이·학습지 1장"},{"id": "s04", "name": "TV 본 거 얘기하기", "img": "img/29.jpg", "sub": "본 내용 이야기해 주기"},{"id": "s05", "name": "내일 계획 세우기", "img": "img/30.jpg", "sub": "할 일 카드로 순서 정하기"},{"id": "s06", "name": "책읽기", "img": "img/24.jpg", "sub": "스스로 소리 내어 읽기"},{"id": "s07", "name": "글쓰기", "img": "img/25.jpg", "sub": "그림일기·한 줄 쓰기"}]},
+ {id:'share',name:'나눔·배려',star:5,items:[{"id": "p01", "name": "쓰레기 줍기", "img": "img/39.jpg", "sub": "산책하며 하나씩"},{"id": "p02", "name": "도와주기", "img": "img/40.jpg", "sub": "친구·가족 도와주기"},{"id": "p03", "name": "양보하기", "img": "img/41.jpg", "sub": "친구·동생에게 먼저"},{"id": "p04", "name": "심부름하기", "img": "img/42.jpg", "sub": "물 갖다드리기 등"},{"id": "p05", "name": "안부 영상통화", "img": "img/43.jpg", "sub": "할미,하비,이모,고모"}]},
+ {id:'move',name:'운동/체력활동',star:3,items:[{"id": "m01", "name": "줄넘기", "img": "img/32.jpg", "sub": "목표 개수 도전"},{"id": "m02", "name": "아빠랑 자전거타기", "img": "img/33.jpg", "sub": "헬멧 쓰고 씽씽"},{"id": "m03", "name": "축구", "img": "img/34.jpg", "sub": "공 차며 뛰어놀기"},{"id": "m04", "name": "캐치볼", "img": "img/35.jpg", "sub": "공 던지고 받기"},{"id": "m05", "name": "배드민턴", "img": "img/36.jpg", "sub": "셔틀콕 주고받기"},{"id": "m06", "name": "등산가기", "img": "img/37.jpg", "sub": "가족과 산에 오르기"},{"id": "m07", "name": "산책가기", "img": "img/38.jpg", "sub": "동네 한 바퀴 걷기"}]}
+];
+let CATS=[],ALLCATS=[],HAB={},ENABLED=['basic','manner','home','study'];
+function loadCats(cfg){
+  CATS=DEF.map(c=>{const saved=cfg&&cfg.cats&&Array.isArray(cfg.cats[c.id])?cfg.cats[c.id]:null;
+    const items=(saved||c.items).filter(it=>it&&typeof it.id==='string'&&typeof it.name==='string').map(it=>({id:it.id,name:String(it.name).slice(0,60),sub:typeof it.sub==='string'?it.sub.slice(0,120):'',img:typeof it.img==='string'?it.img:null,off:it.off===true}));
+    return {id:c.id,name:c.name,star:c.star,items}});
+  HAB={};CATS.forEach(c=>c.items.forEach(it=>HAB[it.id]={...it,cat:c}));
+  if(cfg&&Array.isArray(cfg.enabled)){const e=cfg.enabled.filter(x=>DEF.some(c=>c.id===x));if(e.length)ENABLED=e}
+  ALLCATS=CATS; CATS=ALLCATS.filter(c=>ENABLED.includes(c.id));
+  try{if(!CATS.some(c=>c.id===S.cat))S.cat=CATS[0].id}catch(_){}
+}
+loadCats(null);
+const act=cat=>cat.items.filter(i=>!i.off);
+function thumb(it,cls){const c=cls||'thumb';return it.img&&/^(img\/[\w.]+|data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+)$/.test(it.img)?`<img class="${c}" src="${it.img}" alt="">`:`<span class="${c}">${esc((it.name||'?').replace(/["“”]/g,'')[0]||'?')}</span>`}
+const WON=10, SPEND_MIN=10000;
+const DAYS=['월','화','수','목','금','토','일'];
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+
+const ITEM_START='2026-11-16';
+const S={weeks:{},ledger:{out:[]},week:monday(new Date()),cat:'basic',db:null,canWrite:true};
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);return ymd(x)}
+function addDays(s,n){const [y,m,d]=s.split('-').map(Number);const x=new Date(y,m-1,d+n);return ymd(x)}
+function md(s){const [y,m,d]=s.split('-').map(Number);return m+'/'+d}
+function won(n){return n.toLocaleString('ko-KR')+'원'}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function checks(wk){const w=S.weeks[wk];return (w&&w.c&&typeof w.c==='object')?w.c:{}}
+function isOn(wk,id,i){const a=checks(wk)[id];return Array.isArray(a)&&a[i]===1}
+function weekStats(wk){
+  const c=checks(wk); const byCat={}; const byDay=[0,0,0,0,0,0,0]; let total=0;
+  ALLCATS.forEach(cat=>byCat[cat.id]=0);
+  for(const id in c){const h=HAB[id];if(!h||!Array.isArray(c[id]))continue;
+    c[id].forEach((v,i)=>{if(v===1&&i<7){byCat[h.cat.id]+=h.cat.star;byDay[i]+=h.cat.star;total+=h.cat.star}})}
+  const w=S.weeks[wk]; const manual=(total===0&&w&&typeof w.total==='number'&&w.total>0);
+  if(manual)total=Math.round(w.total);
+  const allow=total*WON, bonus=total*WON;
+  return {total,byCat,byDay,allow,bonus,manual};
+}
+function allWeeks(){const ks=Object.keys(S.weeks).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k));ks.sort();return ks}
+function nightDate(){const d=new Date();if(d.getHours()<4)d.setDate(d.getDate()-1);return d}
+function settled(k){return addDays(k,6)<=ymd(nightDate())}
+function bank(){
+  let inn=0; allWeeks().filter(settled).forEach(k=>inn+=weekStats(k).bonus);
+  let out=0; (Array.isArray(S.ledger.out)?S.ledger.out:[]).forEach(o=>out+=Number(o.amt)||0);
+  return {inn,out,bal:inn-out};
+}
+
+/* ---------- render ---------- */
+function renderTiles(){
+  const cur=monday(new Date()), st=weekStats(cur);
+  tWeek.textContent=st.total+'개';
+  tWeekS.textContent='지난주 '+weekStats(addDays(cur,-7)).total+'개';
+  tAllow.textContent=won(st.allow); tAllowS.textContent=settled(cur)?'일요일 정산 끝':'일요일에 저금통으로 정산';
+  const b=bank(); tBank.textContent=won(b.bal); tBankBar.style.width=Math.min(100,b.bal/SPEND_MIN*100)+'%';
+  tBankS.textContent=(b.bal>=SPEND_MIN?'쓸 수 있어요!':('10,000원까지 '+won(SPEND_MIN-b.bal)))+(settled(cur)?'':' · 이번 주는 일요일에 들어가요');
+  let all=0,allow=0; allWeeks().forEach(k=>{const s=weekStats(k);all+=s.total;allow+=s.allow});
+  tAll.textContent=all+'개'; tAllS.textContent='모은 돈 합계 '+won(allow);
+}
+function renderCheck(){
+  const wk=S.week, st=weekStats(wk), cur=monday(new Date());
+  wkLabel.textContent=md(wk)+' ~ '+md(addDays(wk,6));
+  thisWeek.disabled=(wk===cur);
+  manualNote.hidden=!st.manual; if(st.manual)manualNote.textContent='이 주는 항목 기록 없이 총 별 '+st.total+'개만 저장되어 있어요. 칸을 누르면 항목 기록으로 바뀌어요.';
+  chips.innerHTML=CATS.map(c=>`<button class="chip${c.id===S.cat?' on':''}" style="--c:var(--c-${c.id});--t:var(--t-${c.id})" data-cat="${c.id}">${c.name}<b>★${st.byCat[c.id]}</b></button>`).join('');
+  const cat=CATS.find(c=>c.id===S.cat);
+  gridWrap.style.setProperty('--c',`var(--c-${cat.id})`); gridWrap.style.setProperty('--t',`var(--t-${cat.id})`);
+  const todayIdx=(wk===cur)?(new Date().getDay()+6)%7:-1;
+  let h='<thead><tr><th class="nm">'+cat.name+' · 한 번에 ★'+cat.star+'</th>';
+  DAYS.forEach((d,i)=>h+=`<th class="${i===todayIdx?'today':''}">${d}<small>${md(addDays(wk,i))}</small></th>`);
+  h+='<th>별 합계</th></tr></thead><tbody>';
+  const dayCat=[0,0,0,0,0,0,0]; let catTot=0;
+  act(cat).forEach(it=>{const id=it.id,name=it.name;
+    let row=0;
+    h+=`<tr><td class="nm"><button class="hab" data-card="${id}" aria-label="${esc(name)} 카드 크게 보기">${thumb(it)}<span class="n">${esc(name)}</span><span class="pp">★${cat.star}</span></button></td>`;
+    for(let i=0;i<7;i++){const on=isOn(wk,id,i); if(on){row+=cat.star;dayCat[i]+=cat.star}
+      h+=`<td class="cell${i>=5?' we':''}"><button class="tog${on?' done':''}" data-id="${id}" data-i="${i}" aria-pressed="${on}" aria-label="${esc(name)} ${DAYS[i]}요일">${STAR}</button></td>`}
+    catTot+=row; h+=`<td class="sum">${row||''}</td></tr>`;
+  });
+  h+='</tbody><tfoot><tr><td class="nm">하루 별 합계</td>'+dayCat.map((v,i)=>`<td class="${i>=5?'we':''}">${v||''}</td>`).join('')+`<td class="tot">${catTot}</td></tr></tfoot>`;
+  grid.innerHTML=h;
+}
+function renderTrend(){
+  const ks=allWeeks(); const cur=monday(new Date());
+  let list=[]; let start=ITEM_START; if(start>cur)start=cur;
+  for(let w=cur;list.length<12&&w>=start;w=addDays(w,-7))list.unshift(w);
+  const data=list.map(w=>({w,s:weekStats(w)}));
+  const max=Math.max(50,...data.map(d=>d.s.total))*1.08;
+  const W=720,H=320,L=40,B=30,T=26,bw=(W-L-10)/Math.max(data.length,4);
+  const y=v=>T+(H-T-B)*(1-v/max);
+  let svg=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="주별 별 개수 막대 그래프">`;
+  const step=max>400?100:50;
+  for(let v=0;v<=max;v+=step)svg+=`<line x1="${L}" x2="${W-6}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`;
+  data.forEach((d,i)=>{let acc=0;const x=L+i*bw+bw*.18,w=bw*.64;
+    CATS.forEach(c=>{const v=d.s.byCat[c.id];if(!v)return;const hh=y(acc)-y(acc+v);svg+=`<rect x="${x}" y="${y(acc+v)}" width="${w}" height="${hh}" fill="var(--c-${c.id})"><title>${c.name} ${v}개</title></rect>`;
+      if(hh>=15)svg+=`<text x="${x+w/2}" y="${y(acc+v)+hh/2+4}" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">${c.name} ${v}</text>`;acc+=v});
+    if(d.s.total)svg+=`<text x="${x+w/2}" y="${y(d.s.total)-5}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${d.s.total}</text>`;
+    svg+=`<text x="${x+w/2}" y="${H-10}" text-anchor="middle" font-size="11" fill="${d.w===cur?'var(--ink)':'var(--muted)'}" font-weight="${d.w===cur?700:400}">${md(d.w)}</text>`});
+  svg+=`</svg>`;
+  chart.innerHTML=svg;
+  renderLevels(cur);
+  const now=weekStats(cur), prev=weekStats(addDays(cur,-7));
+  const past=[1,2,3,4].map(n=>weekStats(addDays(cur,-7*n)));
+  const avg=id=>Math.round(past.reduce((a,s)=>a+(id?s.byCat[id]:s.total),0)/4);
+  const delta=(a,b)=>{const d=a-b;return d>0?`<span class="up">▲${d}</span>`:d<0?`<span class="down">▼${-d}</span>`:'<span class="hint">–</span>'};
+  let t='<thead><tr><th>카테고리</th><th>이번 주</th><th>지난주</th><th>변화</th><th>지난 4주 평균</th></tr></thead><tbody>';
+  CATS.forEach(c=>t+=`<tr><td><span class="dot" style="background:var(--c-${c.id})"></span>${c.name}</td><td>${now.byCat[c.id]}</td><td>${prev.byCat[c.id]}</td><td>${delta(now.byCat[c.id],prev.byCat[c.id])}</td><td>${avg(c.id)}</td></tr>`);
+  t+=`<tr><td><b>전체</b></td><td><b>${now.total}</b></td><td>${prev.total}</td><td>${delta(now.total,prev.total)}</td><td>${avg()}</td></tr></tbody>`;
+  catCmp.innerHTML=t;
+  if(!habCat.options.length)habCat.innerHTML=CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const cat=CATS.find(c=>c.id===habCat.value)||CATS[0];
+  const cnt=(wk,id)=>{const a=checks(wk)[id];return Array.isArray(a)?a.slice(0,7).filter(v=>v===1).length:0};
+  let ht='<thead><tr><th>습관</th><th>이번 주</th><th></th><th>지난주</th><th>변화</th></tr></thead><tbody>';
+  act(cat).forEach(({id,name})=>{const a=cnt(cur,id),b=cnt(addDays(cur,-7),id);
+    ht+=`<tr><td><button class="lk" data-card="${id}">${esc(name)}</button></td><td>${a}/7</td><td style="width:70px"><div class="bar"><i style="width:${a/7*100}%;background:var(--c-${cat.id})"></i></div></td><td>${b}/7</td><td>${delta(a,b)}</td></tr>`});
+  habCmp.innerHTML=ht+'</tbody>';
+}
+function renderLevels(cur){
+  const cnt=(wk,id)=>{const a=checks(wk)[id];return Array.isArray(a)?a.slice(0,7).filter(v=>v===1).length:0};
+  const hasItems=wk=>Object.values(checks(wk)).some(a=>Array.isArray(a)&&a.includes(1));
+  const prevWk=addDays(cur,-7);
+  const basis=(prevWk>=ITEM_START&&hasItems(prevWk))?prevWk:cur;
+  const before=addDays(basis,-7), twoWeeks=before>=ITEM_START&&hasItems(before);
+  lvBasis.textContent='기준: '+md(basis)+' ~ '+md(addDays(basis,6))+(basis===cur?' (이번 주, 진행 중)':'');
+  const L=[{k:'습관이 된 것',c:'var(--good)',a:[]},{k:'꾸준히 잘한 것',c:'var(--accent)',a:[]},{k:'조금 더 연습해볼 것',c:'var(--star)',a:[]},{k:'아직 어려운 것',c:'var(--bad)',a:[]}];
+  CATS.forEach(cat=>act(cat).forEach(({id,name})=>{const n=cnt(basis,id),p=cnt(before,id);
+    const lv=(n>=6&&(twoWeeks?p>=6:n===7))?0:n>=5?1:n>=2?2:3; L[lv].a.push({cat,name,n,id})}));
+  levels.innerHTML=L.map(l=>`<div class="lvc" style="--lc:${l.c}"><h3>${l.k}<b>${l.a.length}</b></h3>${l.a.length?l.a.map(h=>`<div class="hx"><i style="background:var(--c-${h.cat.id})"></i><span><button class="lk" data-card="${h.id}">${esc(h.name)}</button></span><em>${h.n}/7</em></div>`).join(''):'<span class="hint">없음</span>'}</div>`).join('');
+}
+function renderBank(){
+  const b=bank();
+  bBal.textContent=won(b.bal); bBar.style.width=Math.min(100,b.bal/SPEND_MIN*100)+'%';
+  const ok=b.bal>=SPEND_MIN;
+  bPill.className='pill '+(ok?'ok':'wait'); bPill.textContent=ok?'쓸 수 있어요':'아직 모으는 중';
+  bLeft.textContent=ok?'10,000원을 넘었어요. 쓰고 싶은 곳을 골라 보세요.':('10,000원까지 '+won(SPEND_MIN-b.bal)+' 남았어요');
+  spBtn.disabled=!ok||!S.canWrite;
+  const ins=allWeeks().filter(settled).map(k=>({k,s:weekStats(k)})).filter(x=>x.s.bonus>0).reverse();
+  inList.innerHTML=ins.length?ins.map(x=>`<div class="li"><span class="d">${md(x.k)} 주</span><span>별 ${x.s.total}개${x.s.manual?' (총합만 기록)':''}</span><span class="a up">+${won(x.s.bonus)}</span></div>`).join(''):'<p class="hint">아직 없어요.</p>';
+  const outs=(Array.isArray(S.ledger.out)?S.ledger.out:[]).map((o,i)=>({o,i})).reverse();
+  outList.innerHTML=outs.length?outs.map(({o,i})=>`<div class="li"><span class="d">${esc(o.d||'')}</span><span>${esc(o.memo||'')}</span><span class="a down">-${won(Number(o.amt)||0)}</span><button class="x" data-del="${i}" aria-label="이 기록 지우기">지우기</button></div>`).join(''):'<p class="hint">아직 쓴 돈이 없어요.</p>';
+}
+function render(){renderTiles();const v=view();if(v==='check')renderCheck();if(v==='trend')renderTrend();if(v==='bank')renderBank();if(v==='edit')renderEdit()}
+function view(){const h=location.hash.slice(1);return ['check','trend','bank','edit'].includes(h)?h:'check'}
+function showView(){const v=view();['check','trend','bank','edit'].forEach(k=>{document.getElementById('v-'+k).hidden=k!==v;document.getElementById('tab-'+k).classList.toggle('on',k===v)});render()}
+
+/* ---------- card modal ---------- */
+function openCard(id){const h=HAB[id];if(!h)return;const c=h.cat;
+  bigCard.style.setProperty('--c',`var(--c-${c.id})`);bigCard.style.setProperty('--t',`var(--t-${c.id})`);
+  bigCard.innerHTML=`<button class="close" id="cardClose" aria-label="닫기">×</button><div class="bp">${thumb(h,'pimg')}</div><div class="bi"><div class="bt"><span class="tg">${esc(c.name)}</span></div><h3>${esc(h.name)}</h3>${h.sub?`<p>${esc(h.sub)}</p>`:''}<div class="bs">${STAR}별 ${c.star}개</div></div>`;
+  cardOv.hidden=false; document.getElementById('cardClose').focus();}
+cardOv.addEventListener('click',e=>{if(e.target===cardOv||e.target.closest('#cardClose'))cardOv.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){cardOv.hidden=true;pickOv.hidden=true;if(!night.hidden)closeNight()}});
+
+/* ---------- edit ---------- */
+S.ecat='basic'; let pickTarget=null, addImg=null;
+const IMGS=['b01.svg','b05.svg','b10.svg'].concat(Array.from({length:50},(_,i)=>String(i+1).padStart(2,'0')+'.jpg').filter(f=>f!=='31.jpg')).map(f=>'img/'+f);
+function saveCfg(){const cats={};ALLCATS.forEach(c=>cats[c.id]=c.items.map(({id,name,sub,img,off})=>({id,name,sub,img,off})));const enabled=ENABLED.slice();
+  loadCats({cats,enabled}); render(); queueWrite('config/items',()=>({cats,enabled}));}
+function renderEdit(){
+  eTabs.innerHTML=ALLCATS.map(c=>`<label class="tabset" style="--c:var(--c-${c.id})"><input type="checkbox" data-en="${c.id}" ${ENABLED.includes(c.id)?'checked':''}> ${c.name}</label>`).join('');
+  eChips.innerHTML=ALLCATS.map(c=>`<button class="chip${c.id===S.ecat?' on':''}" style="--c:var(--c-${c.id});--t:var(--t-${c.id})" data-ecat="${c.id}">${c.name}<b>${act(c).length}</b></button>`).join('');
+  if(eList.contains(document.activeElement))return;
+  const cat=ALLCATS.find(c=>c.id===S.ecat)||ALLCATS[0], a=act(cat);
+  eList.style.setProperty('--c',`var(--c-${cat.id})`);eList.style.setProperty('--t',`var(--t-${cat.id})`);
+  eList.innerHTML=a.map((it,k)=>`<div class="er" data-row="${it.id}">
+    <button type="button" class="thumbbtn" data-pick="${it.id}" aria-label="${esc(it.name)} 그림 바꾸기">${thumb(it)}</button>
+    <input aria-label="이름" data-f="name" data-id="${it.id}" value="${esc(it.name)}" maxlength="60">
+    <textarea aria-label="설명" data-f="sub" data-id="${it.id}" rows="${Math.max(1,(it.sub.match(/\n/g)||[]).length+1)}" maxlength="120">${esc(it.sub)}</textarea>
+    <div class="ops"><button type="button" class="btn" data-mv="-1" data-id="${it.id}" ${k===0?'disabled':''} aria-label="위로">↑</button><button type="button" class="btn" data-mv="1" data-id="${it.id}" ${k===a.length-1?'disabled':''} aria-label="아래로">↓</button><button type="button" class="btn" data-card="${it.id}">보기</button><button type="button" class="btn danger" data-off="${it.id}">지우기</button></div></div>`).join('')||'<p class="hint">항목이 없어요.</p>';
+  const offs=[];ALLCATS.forEach(c=>c.items.filter(i=>i.off).forEach(i=>offs.push({c,i})));
+  offWrap.hidden=!offs.length;
+  offList.innerHTML=offs.map(({c,i})=>`<div class="li"><span class="d">${esc(c.name)}</span><span>${esc(i.name)}</span><span class="sp"></span><button class="btn" data-on="${i.id}">되살리기</button></div>`).join('');
+  addImgBtn.innerHTML=addImg?thumb({img:addImg,name:'+'}):'<span class="thumb">+</span>';
+  addImgBtn.style.setProperty('--c',`var(--c-${cat.id})`);
+}
+function findItem(id){for(const c of ALLCATS){const k=c.items.findIndex(i=>i.id===id);if(k>=0)return {c,k,it:c.items[k]}}return null}
+function needWrite(){if(!S.canWrite){setStatus('보기 권한이라 바꿀 수 없어요',true);return false}return true}
+eTabs.addEventListener('change',e=>{const el=e.target.closest('[data-en]');if(!el||!needWrite())return;const id=el.dataset.en;
+  let en=ALLCATS.map(c=>c.id).filter(x=>x===id?el.checked:ENABLED.includes(x));if(!en.length){el.checked=true;return}ENABLED=en;habCat.innerHTML='';saveCfg();});
+eList.addEventListener('change',e=>{const el=e.target.closest('[data-f]');if(!el||!needWrite())return;const f=findItem(el.dataset.id);if(!f)return;
+  const v=el.value.trim(); if(el.dataset.f==='name'&&!v){el.value=f.it.name;return}
+  f.it[el.dataset.f]=v; el.blur(); saveCfg();});
+document.addEventListener('click',e=>{
+  const ec=e.target.closest('[data-ecat]'); if(ec){S.ecat=ec.dataset.ecat;addImg=null;renderEdit();return}
+  const cd=e.target.closest('[data-card]'); if(cd){openCard(cd.dataset.card);return}
+  const mv=e.target.closest('[data-mv]'); if(mv&&needWrite()){const f=findItem(mv.dataset.id);if(!f)return;const a=act(f.c),k=a.indexOf(f.it),t=a[k+Number(mv.dataset.mv)];if(!t)return;
+    const i1=f.c.items.indexOf(f.it),i2=f.c.items.indexOf(t);f.c.items[i1]=t;f.c.items[i2]=f.it;saveCfg();return}
+  const off=e.target.closest('[data-off]'); if(off&&needWrite()){const f=findItem(off.dataset.off);if(f){f.it.off=true;saveCfg()}return}
+  const on=e.target.closest('[data-on]'); if(on&&needWrite()){const f=findItem(on.dataset.on);if(f){f.it.off=false;saveCfg()}return}
+  const pk=e.target.closest('[data-pick]'); if(pk){pickTarget=pk.dataset.pick;openPicker();return}
+  const pi=e.target.closest('[data-img]'); if(pi){setPicked(pi.dataset.img);return}
+});
+addImgBtn.onclick=()=>{pickTarget='__add';openPicker()};
+function openPicker(){const cur=pickTarget==='__add'?addImg:(findItem(pickTarget)||{}).it?.img;
+  pgrid.innerHTML=IMGS.map(src=>`<button type="button" data-img="${src}" class="${src===cur?'sel':''}"><img src="${src}" alt="" loading="lazy"></button>`).join('');pickOv.hidden=false}
+function setPicked(src){pickOv.hidden=true;
+  if(pickTarget==='__add'){addImg=src;renderEdit();return}
+  if(!needWrite())return;const f=findItem(pickTarget);if(f){f.it.img=src;saveCfg()}}
+pickClose.onclick=()=>pickOv.hidden=true; pickNone.onclick=()=>setPicked(null);
+pickOv.addEventListener('click',e=>{if(e.target===pickOv)pickOv.hidden=true});
+upFile.onchange=()=>{const file=upFile.files&&upFile.files[0];upFile.value='';if(!file)return;
+  const url=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const n=240,c=document.createElement('canvas');c.width=n;c.height=n;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,n,n);
+    const s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,n,n);URL.revokeObjectURL(url);setPicked(c.toDataURL('image/jpeg',0.8))};
+  im.onerror=()=>{URL.revokeObjectURL(url);setStatus('그림을 읽지 못했어요',true)};im.src=url};
+addForm.addEventListener('submit',e=>{e.preventDefault();if(!needWrite())return;const name=addName.value.trim();if(!name)return;
+  const cat=ALLCATS.find(c=>c.id===S.ecat);cat.items.push({id:'x'+Date.now().toString(36),name:name.slice(0,60),sub:addSub.value.trim().slice(0,120),img:addImg,off:false});
+  addName.value='';addSub.value='';addImg=null;saveCfg();setStatus(name+' 항목을 추가했어요')});
+
+/* ---------- bedtime star count ---------- */
+const N={list:[],i:0,wk:'',di:0};
+const VOICE=new Set(["q1", "star", "tmr", "end", "sun", "night", "b01", "b02", "b03", "b04", "b05", "b06", "b07", "b08", "b09", "b10", "b11", "b12", "b13", "b14", "b15", "b16", "r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "h01", "h02", "h03", "h04", "h05", "h06", "h07", "h08", "s01", "s02", "s03", "s04", "s05", "s06", "s07", "p01", "p02", "p03", "p04", "p05", "m01", "m02", "m03", "m04", "m05", "m06", "m07"]);
+const BGM=new Audio('audio/piano.mp3');BGM.loop=true;BGM.volume=0.22;let bgmOn=true;try{bgmOn=localStorage.getItem('bgm')!=='off'}catch(_){}
+let VA=null;
+function play(key,fallback,done){try{speechSynthesis.cancel()}catch(_){}
+  if(VA){VA.onended=null;VA.onerror=null;VA.pause()}
+  const fb=()=>{BGM.volume=0.22;say(fallback);done&&setTimeout(done,1300)};
+  if(VOICE.has(key)){VA=new Audio('audio/v_'+key+'.mp3');BGM.volume=0.1;
+    VA.onended=()=>{BGM.volume=0.22;done&&done()};VA.onerror=fb;VA.play().catch(fb)}
+  else fb()}
+function bgmStart(){if(!bgmOn)return;BGM.play().catch(()=>{})}
+let readOn=true;try{readOn=localStorage.getItem('read')!=='off'}catch(_){}
+function bgmUI(){nMusic.textContent=bgmOn?'음악 끄기':'음악 켜기';nRead.textContent=readOn?'카드 읽기 끄기':'카드 읽기 켜기';nRead.setAttribute('aria-pressed',String(readOn))}
+function say(t){try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=0.92;u.pitch=1.15;
+  const v=ss.getVoices().find(v=>/^ko/i.test(v.lang));if(v)u.voice=v;ss.speak(u)}catch(_){}}
+let AC=null;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;
+  [1318.5,1760,2637].forEach((f,k)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+k*.08);g.gain.linearRampToValueAtTime(.18,t+k*.08+.02);g.gain.exponentialRampToValueAtTime(.001,t+k*.08+.6);o.connect(g).connect(AC.destination);o.start(t+k*.08);o.stop(t+k*.08+.7)})}catch(_){}}
+(function(){let h='';for(let k=0;k<70;k++)h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*3).toFixed(2)}s;transform:scale(${(.5+Math.random()).toFixed(2)})"></i>`;sky.innerHTML=h})();
+function nShow(which){nStart.hidden=which!=='start';nCard.hidden=which!=='card';nEnd.hidden=which!=='end'}
+const Q1='이현이의 하루가 얼마나 반짝였나요? 별을 세어볼까요?';
+function openNight(withSound){const d=nightDate();N.wk=monday(d);N.di=(d.getDay()+6)%7;
+  N.list=[];CATS.forEach(c=>act(c).forEach(it=>N.list.push(HAB[it.id])));N.i=0;
+  nDay.textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 '+DAYS[N.di]+'요일';
+  night.hidden=false;document.body.style.overflow='hidden';nShow('start');nYes.focus();bgmUI();if(withSound){bgmStart();play('q1',Q1)}}
+function closeNight(){night.hidden=true;BGM.pause();if(VA){VA.onended=null;VA.pause()}document.body.style.overflow='';try{speechSynthesis.cancel()}catch(_){};if(location.hash==='#night')history.replaceState(null,'',location.pathname+location.search+'#check');render()}
+function nRender(){const h=N.list[N.i];if(!h){nFinish();return}const c=h.cat,on=isOn(N.wk,h.id,N.di);
+  nBar.style.width=(N.i/N.list.length*100)+'%';nCount.textContent=(N.i+1)+' / '+N.list.length;
+  nBig.style.setProperty('--c',`var(--c-${c.id})`);nBig.style.setProperty('--t',`var(--t-${c.id})`);nBig.classList.toggle('got',on);
+  nBig.innerHTML=`<div class="bp">${thumb(h,'pimg')}</div><div class="bi"><div class="bt"><span class="tg">${esc(c.name)}</span>${on?'<span class="tg" style="background:#F5B700;color:#1F2430">받았어요</span>':''}</div><h3>${esc(h.name)}</h3>${h.sub?`<p>${esc(h.sub)}</p>`:''}</div>`;
+  nStar.innerHTML=STAR+'별 '+c.star+'개'; nBack.disabled=N.i===0; nStar.disabled=nTmr.disabled=false; nShow('card'); if(readOn)play(h.id,h.name.replace(/["“”]/g,''));else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}}}
+function nSet(val){const h=N.list[N.i];if(!h)return;
+  if(S.canWrite){const wk=N.wk;const cur=isOn(wk,h.id,N.di);if(cur!==(val===1)){
+    S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
+    const arr=Array.isArray(S.weeks[wk].c[h.id])?S.weeks[wk].c[h.id].slice(0,7):[0,0,0,0,0,0,0];while(arr.length<7)arr.push(0);
+    arr[N.di]=val;S.weeks[wk].c[h.id]=arr;queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c}))}}
+  else setStatus('보기 권한이라 기록되지 않아요',true);
+  nStar.disabled=nTmr.disabled=true;
+  if(val===1){chime();nBig.classList.add('got')}
+  N.i++; play(val===1?'star':'tmr',val===1?'반짝! 잘했어요!':'괜찮아, 내일은 빛날 거야.',()=>{if(!night.hidden&&!nCard.hidden)nRender()});}
+function nFinish(){let tot=0;const by={},got=[];
+  N.list.forEach(h=>{if(isOn(N.wk,h.id,N.di)){tot+=h.cat.star;by[h.cat.id]=(by[h.cat.id]||0)+h.cat.star;got.push(h)}});
+  nTotal.textContent=tot;
+  nChips.innerHTML=CATS.filter(c=>by[c.id]).map(c=>`<span>${esc(c.name)} ★${by[c.id]}</span>`).join('');
+  nThumbs.innerHTML=got.map(h=>thumb(h,'')).join('');
+  const ws=weekStats(N.wk), sunday=N.di===6;
+  nWeek.innerHTML=sunday?`오늘은 일요일, 정산하는 날이에요!<br>이번 주 별 ${ws.total}개 = ${won(ws.allow)}이 저금통에 들어가요.`:`이번 주 지금까지 별 ${ws.total}개를 모았어요.<br>일요일 밤에 한 주 별을 모아 저금통에 넣어요.`;
+  nBar.style.width='100%';nShow('end');chime();play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!',()=>{if(sunday&&!night.hidden)play('sun','오늘은 일요일, 이번 주 별을 모아서 저금통에 넣는 날이에요.')});render()}
+goNight.onclick=()=>openNight(true);
+nRead.onclick=()=>{readOn=!readOn;try{localStorage.setItem('read',readOn?'on':'off')}catch(_){};bgmUI()};
+nMusic.onclick=()=>{bgmOn=!bgmOn;try{localStorage.setItem('bgm',bgmOn?'on':'off')}catch(_){};if(bgmOn)BGM.play().catch(()=>{});else BGM.pause();bgmUI()};
+nYes.onclick=()=>{chime();bgmStart();nRender()};
+nStar.onclick=()=>nSet(1);
+nTmr.onclick=()=>nSet(0);
+nBack.onclick=()=>{if(N.i>0){N.i--;nRender()}};
+nSound.onclick=()=>{bgmStart();if(!nStart.hidden)play('q1',Q1);else if(!nCard.hidden&&N.list[N.i])play(N.list[N.i].id,N.list[N.i].name.replace(/["“”]/g,''));else play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!')};
+nClose.onclick=closeNight; nDone.onclick=()=>{play('night','잘 자, 이현아. 좋은 꿈 꿔.',closeNight)};
+nAgain.onclick=()=>{N.i=0;nShow('start');play('q1',Q1)};
+document.addEventListener('keydown',e=>{if(night.hidden||nCard.hidden||nStar.disabled)return;if(e.key==='ArrowRight')nSet(1);if(e.key==='ArrowLeft'&&N.i>0){N.i--;nRender()}});
+
+/* ---------- writes (one at a time per doc) ---------- */
+const queues={};
+function queueWrite(path,getData){
+  const q=queues[path]||(queues[path]={busy:false,dirty:false});
+  q.getData=getData; q.dirty=true; if(!q.busy)pump(path);
+}
+async function pump(path){
+  const q=queues[path]; if(!S.db){q.dirty=false;return}
+  q.busy=true;
+  while(q.dirty){q.dirty=false;
+    try{await S.db.doc(path).set(q.getData());setStatus('저장됨 (이 아이패드)')}
+    catch(e){if(e&&e.code==='invalid_argument'){S.canWrite=false;setStatus('이 화면에서는 기록을 바꿀 수 없어요 (보기 권한)',true);break}
+      setStatus('저장하지 못했어요. 잠시 후 다시 눌러 주세요.',true);break}}
+  q.busy=false;
+}
+function setStatus(t,warn){stat.textContent=t;stat.className='status'+(warn?' warn':'')}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.tog'); if(t){
+    if(!S.canWrite){setStatus('보기 권한이라 바꿀 수 없어요',true);return}
+    const id=t.dataset.id,i=+t.dataset.i,wk=S.week;
+    const w=S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
+    const arr=Array.isArray(w.c[id])?w.c[id].slice(0,7):[0,0,0,0,0,0,0]; while(arr.length<7)arr.push(0);
+    arr[i]=arr[i]===1?0:1; w.c[id]=arr;
+    render(); queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c})); return;
+  }
+  const c=e.target.closest('.chip[data-cat]'); if(c){S.cat=c.dataset.cat;try{localStorage.setItem('cat',S.cat)}catch(_){};renderCheck();return}
+  const d=e.target.closest('[data-del]'); if(d){
+    const i=+d.dataset.del; const out=(S.ledger.out||[]).slice(); out.splice(i,1); S.ledger={out};
+    render(); queueWrite('bank/ledger',()=>({out:S.ledger.out}));
+  }
+});
+prev.onclick=()=>{S.week=addDays(S.week,-7);renderCheck()};
+next.onclick=()=>{S.week=addDays(S.week,7);renderCheck()};
+thisWeek.onclick=()=>{S.week=monday(new Date());renderCheck()};
+habCat.onchange=renderTrend;
+spend.addEventListener('submit',e=>{e.preventDefault();
+  const amt=Math.round(Number(spAmt.value)); const b=bank();
+  if(!(amt>0)){spMsg.textContent='금액을 적어 주세요.';return}
+  if(b.bal<SPEND_MIN){spMsg.textContent='저금통이 10,000원을 넘어야 쓸 수 있어요.';return}
+  if(amt>b.bal){spMsg.textContent='저금통에 있는 돈('+won(b.bal)+')보다 많아요.';return}
+  const out=(S.ledger.out||[]).concat([{d:ymd(new Date()),amt,memo:spMemo.value.trim().slice(0,40)}]);
+  S.ledger={out}; spAmt.value='';spMemo.value='';spMsg.textContent=won(amt)+'을 썼다고 적었어요.';
+  render(); queueWrite('bank/ledger',()=>({out:S.ledger.out}));
+});
+window.addEventListener('hashchange',()=>{if(location.hash==='#night')openNight(false);else showView()});
+try{const c=localStorage.getItem('cat');if(CATS.some(x=>x.id===c))S.cat=c}catch(_){}
+showView();
+if(location.hash==='#night')openNight(false);
+
+/* ---------- data ---------- */
+/* ---------- local storage (this device only) ---------- */
+const LSKEY='ihyun-star-v1';
+const LDB=(()=>{
+  let store={}; try{store=JSON.parse(localStorage.getItem(LSKEY)||'{}')||{}}catch(_){store={}}
+  const subs=[];
+  const save=()=>{localStorage.setItem(LSKEY,JSON.stringify(store))};
+  const mkDoc=p=>({id:p.split('/').pop(),exists:p in store,data:()=>store[p]?JSON.parse(JSON.stringify(store[p])):undefined,metadata:{fromCache:false}});
+  const fire=()=>subs.forEach(f=>f());
+  return {
+    raw:()=>store,
+    replace:o=>{store=o;save();fire()},
+    doc:p=>({
+      set:async d=>{store[p]=JSON.parse(JSON.stringify(d));save()},
+      onSnapshot:cb=>{const f=()=>cb(mkDoc(p));subs.push(f);setTimeout(f,0)}
+    }),
+    collection:c=>({onSnapshot:cb=>{const f=()=>{const docs=Object.keys(store).filter(k=>k.startsWith(c+'/')).map(mkDoc);cb({docs,metadata:{fromCache:false}})};subs.push(f);setTimeout(f,0)}})
+  };
+})();
+function validStore(o){return o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).every(k=>/^(weeks\/\d{4}-\d{2}-\d{2}|bank\/ledger|config\/items)$/.test(k)&&o[k]&&typeof o[k]==='object')}
+function importStore(o,ask){
+  if(!validStore(o)){setStatus('백업 내용이 올바르지 않아요',true);return false}
+  if(ask&&Object.keys(LDB.raw()).length&&!confirm('지금 이 아이패드의 기록을 백업 내용으로 바꿀까요?'))return false;
+  LDB.replace(o);setStatus('기록을 불러왔어요');return true;
+}
+(()=>{const m=location.hash.match(/^#import=([A-Za-z0-9_-]+)$/);if(!m)return;
+  try{const b=m[1].replace(/-/g,'+').replace(/_/g,'/');const bin=atob(b+'==='.slice((b.length+3)%4));
+    const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));importStore(o,true)}catch(_){setStatus('불러오기 주소가 올바르지 않아요',true)}
+  history.replaceState(null,'',location.pathname+location.search+'#check');showView();
+})();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
+bkOut.onclick=()=>{
+  const txt=JSON.stringify(LDB.raw());const d=ymd(new Date());
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download='별기록장_백업_'+d+'.json';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  bkMsg.textContent=d+' 백업 파일을 저장했어요 (파일 앱 › 다운로드).';
+};
+bkIn.onclick=()=>bkFile.click();
+bkFile.onchange=async()=>{const f=bkFile.files[0];bkFile.value='';if(!f)return;
+  try{const o=JSON.parse(await f.text());if(importStore(o,true))bkMsg.textContent='백업을 불러왔어요.'}catch(_){setStatus('백업 파일을 읽지 못했어요',true)}};
+(()=>{
+  const db=LDB; S.db=db; setStatus('기록은 이 아이패드에만 저장돼요');
+  db.collection('weeks').onSnapshot(snap=>{
+    const w={}; snap.docs.forEach(doc=>{if(doc.exists){const v=doc.data();if(v&&typeof v==='object')w[doc.id]=v}});
+    S.weeks=w; render();
+  });
+  db.doc('config/items').onSnapshot(doc=>{
+    const v=doc.exists?doc.data():null; loadCats(v&&typeof v.cats==='object'?v:null); render();
+  });
+  db.doc('bank/ledger').onSnapshot(doc=>{
+    const v=doc.exists?doc.data():null; S.ledger={out:(v&&Array.isArray(v.out))?v.out:[]}; render();
+  });
+})();
+</script>
+</body>
+</html>
