@@ -116,6 +116,8 @@ thead th.nm{background:var(--t);padding-left:12px}
 .nbtn.small{font-size:14px}
 .nbtn:disabled{opacity:.4}
 .nbtn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.syncbtn{background:#1E8E5A;color:#fff;border-color:#1E8E5A;font-weight:700}
+.syncbtn:disabled{opacity:.6}
 .nbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .nbtns.four{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:520px}
 .nbtns.four .nbtn{justify-content:center;font-size:20px;padding:12px 14px}
@@ -218,6 +220,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
   <div class="top">
     <h1>이현이의 반짝이는 하루</h1>
     <button class="btn nightbtn" id="goNight">오늘 밤 별 세기</button>
+    <button class="btn syncbtn" id="syncBtn" hidden>완료</button>
     <span class="status" id="stat">불러오는 중…</span>
   </div>
 
@@ -303,6 +306,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     </form>
     <div class="ed" id="eList"></div>
     <div id="offWrap"><h2 style="font-size:18px;margin-bottom:6px">지운 항목</h2><p class="hint" style="margin:0 0 6px">지운 항목의 지난 기록과 별은 그대로 남아요. 되살리면 다시 체크판에 나와요.</p><div class="list" id="offList"></div></div>
+    <div class="tabsetbox" id="famBox" hidden><b>다른 기기 연결</b><div class="row"><button type="button" class="btn" id="famShare">연결 링크 보내기</button></div><span class="hint">이 링크를 휴대폰·다른 아이패드에서 한 번 열면 같은 기록을 함께 써요. 가족에게만 보내 주세요.</span></div>
     <div class="tabsetbox"><b>기록 백업</b><div class="row"><button type="button" class="btn" id="bkOut">백업 파일 저장</button><button type="button" class="btn" id="bkIn">백업 불러오기</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div><span class="hint" id="bkMsg">기록은 이 아이패드에만 저장돼요. 가끔 백업 파일을 저장해 두세요.</span></div>
   </section>
 </div>
@@ -650,7 +654,7 @@ nLater.onclick=()=>nSet('later');
 nTmr.onclick=()=>nSet('tmr');
 nBack.onclick=()=>{if(N.i>0){N.i--;nRender()}};
 nSound.onclick=()=>{bgmStart();if(!nStart.hidden)play('q1',Q1);else if(!nCard.hidden&&N.list[N.i])play(N.list[N.i].id,N.list[N.i].name.replace(/["“”]/g,''));else if(!nEnd.hidden)play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!')};
-nClose.onclick=closeNight; nDone.onclick=()=>{play('night','잘 자, 이현아. 좋은 꿈 꿔.',closeNight)};
+nClose.onclick=closeNight; nDone.onclick=()=>{syncNow(true);play('night','잘 자, 이현아. 좋은 꿈 꿔.',closeNight)};
 nAgain.onclick=()=>{N.i=0;pendLoad();nGoPendUI();nShow('start');play('q1',Q1)};
 document.addEventListener('keydown',e=>{if(night.hidden||nCard.hidden||nStar.disabled)return;if(e.key==='ArrowRight')nSet('star');if(e.key==='ArrowLeft'&&N.i>0){N.i--;nRender()}});
 
@@ -709,15 +713,21 @@ if(location.hash==='#night')openNight(false);
 const LSKEY='ihyun-star-v1';
 const LDB=(()=>{
   let store={}; try{store=JSON.parse(localStorage.getItem(LSKEY)||'{}')||{}}catch(_){store={}}
+  let meta={}; try{meta=JSON.parse(localStorage.getItem(LSKEY+'-t')||'{}')||{}}catch(_){meta={}}
   const subs=[];
-  const save=()=>{localStorage.setItem(LSKEY,JSON.stringify(store))};
+  const save=()=>{localStorage.setItem(LSKEY,JSON.stringify(store));localStorage.setItem(LSKEY+'-t',JSON.stringify(meta))};
   const mkDoc=p=>({id:p.split('/').pop(),exists:p in store,data:()=>store[p]?JSON.parse(JSON.stringify(store[p])):undefined,metadata:{fromCache:false}});
   const fire=()=>subs.forEach(f=>f());
   return {
     raw:()=>store,
-    replace:o=>{store=o;save();fire()},
+    times:()=>meta,
+    replace:o=>{store=o;const n=Date.now();meta={};Object.keys(o).forEach(k=>meta[k]=n);save();fire()},
+    apply:(o,t)=>{store=o;meta=t;save();fire()},
     doc:p=>({
-      set:async d=>{store[p]=JSON.parse(JSON.stringify(d));save()},
+      set:async d=>{const n=Date.now(),old=store[p];store[p]=JSON.parse(JSON.stringify(d));meta[p]=n;
+        if(p.startsWith('weeks/')&&d&&d.c){const oc=(old&&old.c)||{};new Set([...Object.keys(oc),...Object.keys(d.c)]).forEach(id=>{
+          for(let i=0;i<7;i++){const a=+((oc[id]||[])[i]||0),b=+((d.c[id]||[])[i]||0);if(a!==b)meta[p+'#'+id+'#'+i]=n}})}
+        save()},
       onSnapshot:cb=>{const f=()=>cb(mkDoc(p));subs.push(f);setTimeout(f,0)}
     }),
     collection:c=>({onSnapshot:cb=>{const f=()=>{const docs=Object.keys(store).filter(k=>k.startsWith(c+'/')).map(mkDoc);cb({docs,metadata:{fromCache:false}})};subs.push(f);setTimeout(f,0)}})
@@ -734,6 +744,53 @@ function importStore(o,ask){
     const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));importStore(o,true)}catch(_){setStatus('불러오기 주소가 올바르지 않아요',true)}
   history.replaceState(null,'',location.pathname+location.search+'#check');showView();
 })();
+/* ---------- 완료: 다른 기기와 기록 맞추기 (Firestore REST) ---------- */
+const FS='https://firestore.googleapis.com/v1/projects/star-diary-7bd1e/databases/(default)/documents/families/';
+let FAM='';try{FAM=localStorage.getItem('family')||''}catch(_){}
+function famFromHash(){const m=location.hash.match(/^#family=([A-Za-z0-9]{24,64})$/);if(!m)return false;FAM=m[1];try{localStorage.setItem('family',FAM)}catch(_){}
+  history.replaceState(null,'',location.pathname+location.search+'#check');showView();return true}
+famFromHash();
+addEventListener('hashchange',()=>{if(famFromHash()){syncUI();syncNow(false)}});
+function syncUI(){syncBtn.hidden=!FAM;famBox.hidden=!FAM}
+async function fsGet(){const r=await fetch(FS+FAM,{cache:'no-store'});if(r.status===404)return{d:{},t:{},ut:null};if(!r.ok)throw new Error('get '+r.status);
+  const j=await r.json();let v={};try{v=JSON.parse(j.fields&&j.fields.data&&j.fields.data.stringValue||'{}')}catch(_){}
+  return{d:v.d&&typeof v.d==='object'?v.d:{},t:v.t&&typeof v.t==='object'?v.t:{},ut:j.updateTime}}
+function merge(R){const L=LDB.raw(),LT=LDB.times(),d={},t={};let changed=false;
+  Object.keys(LT).forEach(k=>{if(k.includes('#'))t[k]=+LT[k]||0});
+  Object.keys(R.t).forEach(k=>{if(k.includes('#')&&(+R.t[k]||0)>=(t[k]||0))t[k]=+R.t[k]||0});
+  new Set([...Object.keys(L),...Object.keys(R.d)]).forEach(k=>{
+    if(!/^(weeks\/\d{4}-\d{2}-\d{2}|bank\/ledger|config\/items)$/.test(k))return;
+    const lt=+LT[k]||0,rt=+R.t[k]||0;
+    const lv=L[k],rv=R.d[k];
+    if(k.startsWith('weeks/')&&lv&&rv&&lv.c&&rv.c){ /* cell-by-cell */
+      const c={};new Set([...Object.keys(lv.c),...Object.keys(rv.c)]).forEach(id=>{const arr=[];
+        for(let i=0;i<7;i++){const ck=k+'#'+id+'#'+i,a=+((lv.c[id]||[])[i]||0),b=+((rv.c[id]||[])[i]||0);
+          arr.push((+R.t[ck]||0)>=(+LT[ck]||0)?b:a)}
+        c[id]=arr});
+      d[k]={c};t[k]=Math.max(lt,rt);if(JSON.stringify(lv)!==JSON.stringify(d[k]))changed=true;return}
+    if(k in R.d&&(!(k in L)||rt>=lt)){d[k]=R.d[k];t[k]=rt;if(JSON.stringify(L[k])!==JSON.stringify(R.d[k]))changed=true}
+    else{d[k]=L[k];t[k]=lt}});
+  return{d,t,changed}}
+let syncing=false;
+async function syncNow(push){if(!FAM||syncing)return;syncing=true;syncBtn.disabled=true;if(push)syncBtn.textContent='맞추는 중…';
+  try{
+    for(let tries=0;tries<3;tries++){
+      const R=await fsGet();const M=merge(R);if(M.changed)LDB.apply(M.d,M.t);
+      if(!push)break;
+      const body={fields:{data:{stringValue:JSON.stringify({d:M.d,t:M.t})},stamp:{integerValue:String(Date.now())},by:{stringValue:(navigator.platform||'device').slice(0,40)}}};
+      const pre=R.ut?'currentDocument.updateTime='+encodeURIComponent(R.ut):'currentDocument.exists=false';
+      const w=await fetch(FS+FAM+'?'+pre,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(w.ok)break; if(w.status!==400&&w.status!==409&&w.status!==412)throw new Error('put '+w.status);
+      if(tries===2)throw new Error('busy')}
+    const hm=new Date().toTimeString().slice(0,5);
+    setStatus(push?'완료! 다른 기기와 기록을 맞췄어요 ('+hm+')':'다른 기기 기록을 받아왔어요 ('+hm+')');
+  }catch(e){setStatus(push?'인터넷 연결을 확인하고 다시 완료를 눌러 주세요':'다른 기기 기록을 받아오지 못했어요',true)}
+  finally{syncing=false;syncBtn.disabled=false;syncBtn.textContent='완료'}}
+syncBtn.onclick=()=>syncNow(true);
+famShare.onclick=async()=>{const url=location.origin+location.pathname+'#family='+FAM;
+  try{if(navigator.share){await navigator.share({title:'별 기록장 연결',url});return}}catch(_){return}
+  try{await navigator.clipboard.writeText(url);setStatus('연결 링크를 복사했어요. 카톡에 붙여 넣어 보내 주세요')}catch(_){prompt('이 링크를 복사해서 보내 주세요',url)}};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow(false)});
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
 bkOut.onclick=()=>{
   const txt=JSON.stringify(LDB.raw());const d=ymd(new Date());
@@ -745,7 +802,7 @@ bkIn.onclick=()=>bkFile.click();
 bkFile.onchange=async()=>{const f=bkFile.files[0];bkFile.value='';if(!f)return;
   try{const o=JSON.parse(await f.text());if(importStore(o,true))bkMsg.textContent='백업을 불러왔어요.'}catch(_){setStatus('백업 파일을 읽지 못했어요',true)}};
 (()=>{
-  const db=LDB; S.db=db; setStatus('기록은 이 아이패드에만 저장돼요');
+  const db=LDB; S.db=db; setStatus(FAM?'기록을 다 넣으면 완료를 눌러 주세요':'기록은 이 아이패드에만 저장돼요'); syncUI(); if(FAM)setTimeout(()=>syncNow(false),300);
   db.collection('weeks').onSnapshot(snap=>{
     const w={}; snap.docs.forEach(doc=>{if(doc.exists){const v=doc.data();if(v&&typeof v==='object')w[doc.id]=v}});
     S.weeks=w; render();
