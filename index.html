@@ -119,6 +119,17 @@ thead th.nm{background:var(--t);padding-left:12px}
 .syncbtn{background:#1E8E5A;color:#fff;border-color:#1E8E5A;font-weight:700}
 .syncbtn:disabled{opacity:.6}
 .nbtns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.todaybadge{display:inline-flex;align-items:center;gap:4px;background:#FFF6D6;border:2px solid #F5B700;border-radius:999px;padding:4px 14px;font-weight:700;color:#1F2430}
+.todaybadge svg{width:22px;height:22px}.todaybadge b{font-size:22px}.todaybadge .tk{font-size:14px;color:#6B6F80}
+table.bonus{border-collapse:separate;border-spacing:0;width:100%;min-width:720px}
+table.bonus td{text-align:center;padding:8px 4px;background:#FFF9E6;border-top:2px solid #F5B700;border-bottom:2px solid #F5B700;position:relative}
+table.bonus td.nm{text-align:left;border-left:2px solid #F5B700;border-radius:14px 0 0 14px}
+table.bonus td.sum{border-right:2px solid #F5B700;border-radius:0 14px 14px 0;font-weight:700;font-size:18px}
+table.bonus td.today{background:#FFEFB3}
+.bhead{display:flex;align-items:center;gap:8px}.bhead .bico{color:#F5B700}.bhead .bico svg{width:30px;height:30px}.bhead b{display:block}.bhead small{display:block;color:#6B6F80;font-size:12px;word-break:keep-all}
+.bplus{min-width:52px;min-height:44px;border-radius:12px;border:2px dashed #F5B700;background:#fff;color:#8A6A00;font-weight:700;font-size:16px;cursor:pointer}
+.bplus:active{transform:scale(.94)}
+.bminus{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;border:0;background:#E9E3CF;color:#6B6F80;font-size:14px;line-height:1;cursor:pointer;padding:0}
 .nbtns.four{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:520px}
 .nbtns.four .nbtn{justify-content:center;font-size:20px;padding:12px 14px}
 .nbtn.later{background:#7C5CD6;color:#fff}
@@ -139,6 +150,19 @@ thead th.nm{background:var(--t);padding-left:12px}
 .nchips span{background:rgba(255,255,255,.12);border-radius:99px;padding:4px 12px;font-size:14px}
 .nthumbs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .nthumbs img,.nthumbs span{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#fff;color:#1E2A5A;display:flex;align-items:center;justify-content:center;font-family:var(--display);box-shadow:0 0 0 2px #FFD54A}
+.gn{border:0;background:none;padding:0;cursor:pointer;width:min(420px,86vw);aspect-ratio:3/2;perspective:1200px;-webkit-tap-highlight-color:transparent}
+.gn-in{position:relative;display:block;width:100%;height:100%;transition:transform .7s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
+.gn.flip .gn-in{transform:rotateY(180deg)}
+.gn-back,.gn-front{position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px 22px;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.gn-back{background:radial-gradient(circle at 30% 20%,#4B5BB8,#1E2A5A 70%);border:3px solid #FFD54A;color:#FFE58A;background-image:radial-gradient(circle at 30% 20%,#4B5BB8,#1E2A5A 70%)}
+.gn-back::before{content:"";position:absolute;inset:0;border-radius:20px;background-image:radial-gradient(#fff 1px,transparent 1.5px),radial-gradient(#fff 1px,transparent 1.5px);background-size:46px 46px,70px 70px;background-position:8px 12px,30px 40px;opacity:.5}
+.gn-moon{width:62px;height:62px;filter:drop-shadow(0 0 14px rgba(255,229,138,.7))}
+.gn-back b{font-family:var(--display);font-size:34px;letter-spacing:1px}
+.gn-back small{color:#E6EAFF;font-size:14px;opacity:.85}
+.gn-front{transform:rotateY(180deg);background:#FFF8E1;border:3px solid #FFD54A;color:#1E2A5A}
+.gn-front b{font-family:var(--display);font-size:25px;line-height:1.45;word-break:keep-all;font-weight:400}
+.gn-to{color:#B8860B;font-size:14px}
+.gn-tap{color:#8A8FA8;font-size:12px}
 .nweek{margin:0;color:#E6EAFF;font-size:15px;line-height:1.6;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 14px}
 .tabsetbox{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:10px 12px}
 .tabset{flex-direction:row;align-items:center;gap:6px;font-size:15px;color:var(--ink);border:2px solid var(--c);border-radius:99px;padding:4px 12px;cursor:pointer}
@@ -221,6 +245,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     <h1>이현이의 반짝이는 하루</h1>
     <button class="btn nightbtn" id="goNight">오늘 밤 별 세기</button>
     <button class="btn syncbtn" id="syncBtn" hidden>완료</button>
+    <span class="todaybadge" id="todayBadge" title="오늘 모은 별"><span class="tk">오늘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#F5B700"/></svg><b id="todayN">0</b><span class="tk">개</span></span>
     <span class="status" id="stat">불러오는 중…</span>
   </div>
 
@@ -249,6 +274,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     </div>
     <div class="chips" id="chips"></div>
     <p class="hint" id="manualNote" hidden style="margin:0"></p>
+    <div class="scroll"><table class="bonus" id="bonusGrid"></table></div>
     <div class="scroll" id="gridWrap"><table id="grid"></table></div>
   </section>
 
@@ -340,11 +366,16 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     <button class="nbtn ghost small" id="nBack">이전 카드</button>
   </div>
   <div class="nstage" id="nEnd" hidden>
-    <p class="nsub">오늘 이현이는</p>
+    <p class="nsub">오늘 이현이가 반짝인 별은 모두</p>
     <div class="ntotal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#FFD54A"/></svg><span id="nTotal">0</span><small>개</small></div>
-    <p class="nsub">만큼 반짝였어요!</p>
     <div class="nchips" id="nChips"></div>
-    <div class="nthumbs" id="nThumbs"></div>
+    <div class="nthumbs" id="nThumbs" hidden></div>
+    <button class="gn" id="gnCard" aria-label="굿나잇 카드 뒤집기">
+      <span class="gn-in">
+        <span class="gn-back"><svg class="gn-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="#FFE58A"/></svg><b>Good Night</b><small>카드를 눌러 보세요</small></span>
+        <span class="gn-front"><small class="gn-to">이현이에게</small><b id="gnMsg"></b><small class="gn-tap">한 번 더 누르면 다른 말이 나와요</small></span>
+      </span>
+    </button>
     <p class="nweek" id="nWeek"></p>
     <div class="nbtns"><button class="nbtn ghost" id="nAgain">처음부터 다시</button><button class="nbtn yes" id="nDone">잘 자, 이현아</button></div>
   </div>
@@ -394,16 +425,22 @@ function won(n){return n.toLocaleString('ko-KR')+'원'}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
 function checks(wk){const w=S.weeks[wk];return (w&&w.c&&typeof w.c==='object')?w.c:{}}
+function bonusArr(wk){const b=S.weeks[wk]&&S.weeks[wk].bonus;const a=[0,0,0,0,0,0,0];if(Array.isArray(b))for(let i=0;i<7;i++)a[i]=Math.max(0,Math.round(+b[i]||0));return a}
+function wkEdit(wk){return S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)},bonus:bonusArr(wk)}:{c:{},bonus:[0,0,0,0,0,0,0]}}
+function wkData(wk){const w=S.weeks[wk]||{};const o={c:w.c||{}};if(Array.isArray(w.bonus)&&w.bonus.some(x=>x>0))o.bonus=w.bonus;return o}
+function todayStars(){const d=nightDate(),wk=monday(d),i=(d.getDay()+6)%7,c=checks(wk);let n=bonusArr(wk)[i];
+  for(const id in c){const h=HAB[id];if(h&&Array.isArray(c[id])&&c[id][i]===1)n+=h.cat.star}return n}
 function isOn(wk,id,i){const a=checks(wk)[id];return Array.isArray(a)&&a[i]===1}
 function weekStats(wk){
   const c=checks(wk); const byCat={}; const byDay=[0,0,0,0,0,0,0]; let total=0;
   ALLCATS.forEach(cat=>byCat[cat.id]=0);
   for(const id in c){const h=HAB[id];if(!h||!Array.isArray(c[id]))continue;
     c[id].forEach((v,i)=>{if(v===1&&i<7){byCat[h.cat.id]+=h.cat.star;byDay[i]+=h.cat.star;total+=h.cat.star}})}
+  const bs=bonusArr(wk);let bstar=0;bs.forEach((v,i)=>{bstar+=v;byDay[i]+=v});total+=bstar;
   const w=S.weeks[wk]; const manual=(total===0&&w&&typeof w.total==='number'&&w.total>0);
   if(manual)total=Math.round(w.total);
   const allow=total*WON, bonus=total*WON;
-  return {total,byCat,byDay,allow,bonus,manual};
+  return {total,byCat,byDay,allow,bonus,manual,bstar};
 }
 function allWeeks(){const ks=Object.keys(S.weeks).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k));ks.sort();return ks}
 function nightDate(){const d=new Date();if(d.getHours()<4)d.setDate(d.getDate()-1);return d}
@@ -424,6 +461,7 @@ function renderTiles(){
   tBankS.textContent=(b.bal>=SPEND_MIN?'쓸 수 있어요!':('10,000원까지 '+won(SPEND_MIN-b.bal)))+(settled(cur)?'':' · 이번 주는 일요일에 들어가요');
   let all=0,allow=0; allWeeks().forEach(k=>{const s=weekStats(k);all+=s.total;allow+=s.allow});
   tAll.textContent=all+'개'; tAllS.textContent='모은 돈 합계 '+won(allow);
+  todayN.textContent=todayStars();
 }
 function renderCheck(){
   const wk=S.week, st=weekStats(wk), cur=monday(new Date());
@@ -447,6 +485,11 @@ function renderCheck(){
   });
   h+='</tbody><tfoot><tr><td class="nm">하루 별 합계</td>'+dayCat.map((v,i)=>`<td class="${i>=5?'we':''}">${v||''}</td>`).join('')+`<td class="tot">${catTot}</td></tr></tfoot>`;
   grid.innerHTML=h;
+  const bs=bonusArr(wk);
+  let b='<tbody><tr><td class="nm"><div class="bhead"><span class="bico">'+STAR+'</span><span><b>보너스 별</b><small>잘한 일이 있을 때 언제든 +1</small></span></div></td>';
+  for(let i=0;i<7;i++)b+=`<td class="${i===todayIdx?'today':''}${i>=5?' we':''}"><button class="bplus" data-bonus="${i}" aria-label="${DAYS[i]}요일 보너스 별 1개 더하기"><span class="bn">${bs[i]?'★'+bs[i]:'+1'}</span></button>${bs[i]?`<button class="bminus" data-bonus="${i}" data-d="-1" aria-label="${DAYS[i]}요일 보너스 별 1개 빼기">−</button>`:''}</td>`;
+  b+=`<td class="sum">${st.bstar||''}</td></tr></tbody>`;
+  bonusGrid.innerHTML=b;
 }
 function renderTrend(){
   const ks=allWeeks(); const cur=monday(new Date());
@@ -462,6 +505,8 @@ function renderTrend(){
   data.forEach((d,i)=>{let acc=0;const x=L+i*bw+bw*.18,w=bw*.64;
     CATS.forEach(c=>{const v=d.s.byCat[c.id];if(!v)return;const hh=y(acc)-y(acc+v);svg+=`<rect x="${x}" y="${y(acc+v)}" width="${w}" height="${hh}" fill="var(--c-${c.id})"><title>${c.name} ${v}개</title></rect>`;
       if(hh>=15)svg+=`<text x="${x+w/2}" y="${y(acc+v)+hh/2+4}" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">${c.name} ${v}</text>`;acc+=v});
+    if(d.s.bstar&&!d.s.manual){const v=d.s.bstar,hh=y(acc)-y(acc+v);svg+=`<rect x="${x}" y="${y(acc+v)}" width="${w}" height="${hh}" fill="#F5B700"><title>보너스 ${v}개</title></rect>`;
+      if(hh>=15)svg+=`<text x="${x+w/2}" y="${y(acc+v)+hh/2+4}" text-anchor="middle" font-size="12" fill="#1F2430" font-weight="700">보너스 ${v}</text>`;acc+=v}
     if(d.s.total)svg+=`<text x="${x+w/2}" y="${y(d.s.total)-5}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${d.s.total}</text>`;
     svg+=`<text x="${x+w/2}" y="${H-10}" text-anchor="middle" font-size="11" fill="${d.w===cur?'var(--ink)':'var(--muted)'}" font-weight="${d.w===cur?700:400}">${md(d.w)}</text>`});
   svg+=`</svg>`;
@@ -626,9 +671,9 @@ function nBtns(dis){nStar.disabled=nNo.disabled=nLater.disabled=nTmr.disabled=di
 function writeDay(id,val){
   if(!S.canWrite){setStatus('보기 권한이라 기록되지 않아요',true);return}
   const wk=N.wk;const cur=isOn(wk,id,N.di);if(cur===(val===1))return;
-  S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
+  wkEdit(wk);
   const arr=Array.isArray(S.weeks[wk].c[id])?S.weeks[wk].c[id].slice(0,7):[0,0,0,0,0,0,0];while(arr.length<7)arr.push(0);
-  arr[N.di]=val;S.weeks[wk].c[id]=arr;queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c}))}
+  arr[N.di]=val;S.weeks[wk].c[id]=arr;queueWrite('weeks/'+wk,()=>wkData(wk))}
 const NEXT=()=>{if(!night.hidden&&!nCard.hidden)nRender()};
 function nSet(kind){const h=N.list[N.i];if(!h)return;
   const val=kind==='star'?1:0; writeDay(h.id,val); pendSet(h.id,kind==='later');
@@ -638,8 +683,10 @@ function nSet(kind){const h=N.list[N.i];if(!h)return;
   else{try{speechSynthesis.cancel()}catch(_){};if(VA){VA.onended=null;VA.pause()}setTimeout(NEXT,450)}}
 function nFinish(){let tot=0;const by={},got=[];
   N.list.forEach(h=>{if(isOn(N.wk,h.id,N.di)){tot+=h.cat.star;by[h.cat.id]=(by[h.cat.id]||0)+h.cat.star;got.push(h)}});
-  nTotal.textContent=tot;
-  nChips.innerHTML=CATS.filter(c=>by[c.id]).map(c=>`<span>${esc(c.name)} ★${by[c.id]}</span>`).join('');
+  const bonusToday=bonusArr(N.wk)[N.di];
+  nTotal.textContent=todayStars();
+  nChips.innerHTML=CATS.filter(c=>by[c.id]).map(c=>`<span>${esc(c.name)} ★${by[c.id]}</span>`).join('')+(bonusToday?`<span>보너스 ★${bonusToday}</span>`:'');
+  gnCard.classList.remove('flip');
   nThumbs.innerHTML=got.map(h=>thumb(h,'')).join('');
   const ws=weekStats(N.wk), sunday=N.di===6;
   nWeek.innerHTML=sunday?`오늘은 일요일, 정산하는 날이에요!<br>이번 주 별 ${ws.total}개 = ${won(ws.allow)}이 저금통에 들어가요.`:`이번 주 지금까지 별 ${ws.total}개를 모았어요.<br>일요일 밤에 한 주 별을 모아 저금통에 넣어요.`;
@@ -655,6 +702,11 @@ nTmr.onclick=()=>nSet('tmr');
 nBack.onclick=()=>{if(N.i>0){N.i--;nRender()}};
 nSound.onclick=()=>{bgmStart();if(!nStart.hidden)play('q1',Q1);else if(!nCard.hidden&&N.list[N.i])play(N.list[N.i].id,N.list[N.i].name.replace(/["“”]/g,''));else if(!nEnd.hidden)play('end','와! 오늘 이현이는 이렇게 많이 반짝였어요!')};
 nClose.onclick=closeNight; nDone.onclick=()=>{syncNow(true);play('night','잘 자, 이현아. 좋은 꿈 꿔.',closeNight)};
+const GN=['오늘도 정말 멋졌어. 사랑해!','이현이는 있는 그대로 소중해.','실수해도 괜찮아. 다시 해 보면 돼.','오늘 한 작은 노력이 내일의 큰 힘이 될 거야.','이현이가 웃으면 우리 집이 환해져.','천천히 해도 괜찮아. 이현이만의 속도로 가자.','용기 내 줘서 고마워.','어제보다 오늘 한 뼘 더 자랐구나!','이현이 마음은 별보다 반짝여.','친구에게 친절한 이현이, 정말 멋져.','모르는 건 물어보면 돼. 그게 배우는 거야.','엄마 아빠는 언제나 이현이 편이야.','꿈속에서도 신나는 모험 하렴.','오늘 고생 많았어. 푹 자고 내일 또 놀자!','이현이는 할 수 있어. 우리는 믿어.','고마워, 미안해, 사랑해는 마법의 말이야.','끝까지 해 본 이현이를 칭찬해!','내일은 또 어떤 반짝이는 일이 생길까?','속상한 날도 꼭 지나가. 우리가 함께 있을게.','이현이가 우리 아들이라서 정말 행복해.','몸도 마음도 쑥쑥 크고 있어.','작은 도움이 누군가에겐 큰 기쁨이 돼.','오늘 웃었던 순간을 떠올리며 잠들자.','별님도 이현이를 보고 웃고 있어.','잘하고 싶은 마음, 그게 제일 멋진 거야.','못 한 건 내일 하면 돼. 오늘은 푹 쉬자.','이현이의 하루를 들려줘서 고마워.','넘어져도 다시 일어나는 게 진짜 멋진 거야.'];
+let gnLast=-1;
+gnCard.onclick=()=>{const f=!gnCard.classList.contains('flip');
+  if(f){let k;do{k=Math.floor(Math.random()*GN.length)}while(k===gnLast&&GN.length>1);gnLast=k;gnMsg.textContent=GN[k];chime()}
+  gnCard.classList.toggle('flip',f)};
 nAgain.onclick=()=>{N.i=0;pendLoad();nGoPendUI();nShow('start');play('q1',Q1)};
 document.addEventListener('keydown',e=>{if(night.hidden||nCard.hidden||nStar.disabled)return;if(e.key==='ArrowRight')nSet('star');if(e.key==='ArrowLeft'&&N.i>0){N.i--;nRender()}});
 
@@ -679,10 +731,16 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('.tog'); if(t){
     if(!S.canWrite){setStatus('보기 권한이라 바꿀 수 없어요',true);return}
     const id=t.dataset.id,i=+t.dataset.i,wk=S.week;
-    const w=S.weeks[wk]=S.weeks[wk]&&typeof S.weeks[wk]==='object'?{c:{...checks(wk)}}:{c:{}};
+    const w=wkEdit(wk);
     const arr=Array.isArray(w.c[id])?w.c[id].slice(0,7):[0,0,0,0,0,0,0]; while(arr.length<7)arr.push(0);
     arr[i]=arr[i]===1?0:1; w.c[id]=arr;
-    render(); queueWrite('weeks/'+wk,()=>({c:S.weeks[wk].c})); return;
+    render(); queueWrite('weeks/'+wk,()=>wkData(wk)); return;
+  }
+  const bb=e.target.closest('[data-bonus]'); if(bb){
+    const i=+bb.dataset.bonus,wk=S.week,w=wkEdit(wk);
+    w.bonus[i]=Math.max(0,w.bonus[i]+(bb.dataset.d==='-1'?-1:1));
+    if(bb.dataset.d!=='-1'){try{chime()}catch(_){}}
+    render(); queueWrite('weeks/'+wk,()=>wkData(wk)); return;
   }
   const c=e.target.closest('.chip[data-cat]'); if(c){S.cat=c.dataset.cat;try{localStorage.setItem('cat',S.cat)}catch(_){};renderCheck();return}
   const d=e.target.closest('[data-del]'); if(d){
@@ -726,7 +784,8 @@ const LDB=(()=>{
     doc:p=>({
       set:async d=>{const n=Date.now(),old=store[p];store[p]=JSON.parse(JSON.stringify(d));meta[p]=n;
         if(p.startsWith('weeks/')&&d&&d.c){const oc=(old&&old.c)||{};new Set([...Object.keys(oc),...Object.keys(d.c)]).forEach(id=>{
-          for(let i=0;i<7;i++){const a=+((oc[id]||[])[i]||0),b=+((d.c[id]||[])[i]||0);if(a!==b)meta[p+'#'+id+'#'+i]=n}})}
+          for(let i=0;i<7;i++){const a=+((oc[id]||[])[i]||0),b=+((d.c[id]||[])[i]||0);if(a!==b)meta[p+'#'+id+'#'+i]=n}});
+          const ob=(old&&old.bonus)||[],nb=d.bonus||[];for(let i=0;i<7;i++)if((+ob[i]||0)!==(+nb[i]||0))meta[p+'#bonus#'+i]=n}
         save()},
       onSnapshot:cb=>{const f=()=>cb(mkDoc(p));subs.push(f);setTimeout(f,0)}
     }),
@@ -767,7 +826,9 @@ function merge(R){const L=LDB.raw(),LT=LDB.times(),d={},t={};let changed=false;
         for(let i=0;i<7;i++){const ck=k+'#'+id+'#'+i,a=+((lv.c[id]||[])[i]||0),b=+((rv.c[id]||[])[i]||0);
           arr.push((+R.t[ck]||0)>=(+LT[ck]||0)?b:a)}
         c[id]=arr});
-      d[k]={c};t[k]=Math.max(lt,rt);if(JSON.stringify(lv)!==JSON.stringify(d[k]))changed=true;return}
+      d[k]={c};
+      const lb=lv.bonus||[],rb=rv.bonus||[],bn=[];for(let i=0;i<7;i++){const ck=k+'#bonus#'+i;bn.push((+R.t[ck]||0)>=(+LT[ck]||0)?(+rb[i]||0):(+lb[i]||0))}
+      if(bn.some(x=>x>0))d[k].bonus=bn;t[k]=Math.max(lt,rt);if(JSON.stringify(lv)!==JSON.stringify(d[k]))changed=true;return}
     if(k in R.d&&(!(k in L)||rt>=lt)){d[k]=R.d[k];t[k]=rt;if(JSON.stringify(L[k])!==JSON.stringify(R.d[k]))changed=true}
     else{d[k]=L[k];t[k]=lt}});
   return{d,t,changed}}
