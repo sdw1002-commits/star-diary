@@ -285,6 +285,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
       <span class="wk" id="wkLabel"></span>
       <button class="btn" id="next" aria-label="다음 주">›</button>
       <button class="btn" id="thisWeek">이번 주</button>
+      <button class="btn" id="resetBtn">오늘 기록 리셋</button>
       <span class="sp"></span>
       <span class="hint">칸을 누르면 별이 켜지고, 다시 누르면 꺼져요</span>
     </div>
@@ -362,6 +363,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     <p class="nsub">별을 세어볼까요?</p>
     <button class="nbtn yes" id="nYes">YES!</button>
     <button class="nbtn later" id="nGoPend" hidden></button>
+    <button class="nbtn ghost small" id="nReset">오늘 기록 모두 리셋</button>
     <p class="nday" id="nDay"></p>
   </div>
   <div class="nstage" id="nPend" hidden>
@@ -666,9 +668,9 @@ function nShowPend(){if(!PEND.ids.length){nFinish();return}
   pList.innerHTML=PEND.ids.map(id=>{const h=HAB[id];return `<div class="pitem">${thumb(h,'')}<span class="pn">${esc(h.name)}</span><button class="nbtn star" data-pdone="${id}">${STAR}다 했어!</button></div>`}).join('');
   nBar.style.width='100%';nShow('pend')}
 pList.addEventListener('click',e=>{const b=e.target.closest('[data-pdone]');if(!b)return;const id=b.dataset.pdone;
-  pList.querySelectorAll('button').forEach(x=>x.disabled=true);
-  writeDay(id,1);pendSet(id,false);chime();
-  play('star','반짝! 잘했어요!',()=>{if(!night.hidden&&!nPend.hidden)nShowPend()})});
+  writeDay(id,1);pendSet(id,false);
+  const it=b.closest('.pitem');if(it)it.remove();
+  if(!PEND.ids.length)nFinish()});
 pLater.onclick=closeNight;
 pStop.onclick=()=>{nFinish()};
 nGoPend.onclick=()=>{chime();bgmStart();nShowPend()};
@@ -686,6 +688,12 @@ function nRender(){const h=N.list[N.i];if(!h){nShowPend();return}const c=h.cat,o
 function nBonusUI(){const n=bonusArr(N.wk)[N.di];nBonus.innerHTML=STAR+'보너스 별 +1'+(n?` <small>(오늘 ★${n})</small>`:'')}
 function nAddBonus(){if(!S.canWrite)return;const wk=N.wk,w=wkEdit(wk);w.bonus[N.di]+=1;queueWrite('weeks/'+wk,()=>wkData(wk));
   chime();nBonusUI();nBonus.classList.remove('pop');void nBonus.offsetWidth;nBonus.classList.add('pop');render()}
+function resetToday(){
+  if(!confirm('오늘 입력한 별, 보너스 별, 자기 전에 할 것을 모두 지울까요?'))return false;
+  const d=nightDate(),wk=monday(d),i=(d.getDay()+6)%7,w=wkEdit(wk);
+  Object.keys(w.c).forEach(id=>{if(Array.isArray(w.c[id])&&w.c[id][i]){const a=w.c[id].slice(0,7);while(a.length<7)a.push(0);a[i]=0;w.c[id]=a}});
+  w.bonus[i]=0;queueWrite('weeks/'+wk,()=>wkData(wk));
+  PEND={d:ymd(d),ids:[]};pendSave();render();setStatus('오늘 기록을 모두 지웠어요');return true}
 function nBtns(dis){nStar.disabled=nNo.disabled=nLater.disabled=nTmr.disabled=dis}
 function writeDay(id,val){
   if(!S.canWrite){setStatus('보기 권한이라 기록되지 않아요',true);return}
@@ -716,6 +724,8 @@ nMusic.onclick=()=>{bgmOn=!bgmOn;try{localStorage.setItem('bgm',bgmOn?'on':'off'
 nYes.onclick=()=>{chime();bgmStart();nRender()};
 nStar.onclick=()=>nSet('star');
 nBonus.onclick=nAddBonus;
+nReset.onclick=()=>{if(resetToday()){N.i=0;pendLoad();nGoPendUI();nShow('start')}};
+resetBtn.onclick=()=>{resetToday()};
 nNo.onclick=()=>nSet('no');
 nLater.onclick=()=>nSet('later');
 nTmr.onclick=()=>nSet('tmr');
