@@ -135,6 +135,17 @@ table.bonus td.today{background:#FFEFB3}
 .nbtn.nbonus svg{width:20px;height:20px}
 .nbtn.nbonus.pop{animation:bpop .35s ease}
 @keyframes bpop{50%{transform:scale(1.12)}}
+table.bonus td{color:#1F2430}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  table.bonus td{background:#2E2610;color:#FFE9A6;border-color:#F5B700}
+  table.bonus td.today{background:#4A3A0C}
+  table.bonus td.sum{color:#FFD54A}
+  .bhead b{color:#FFE9A6}.bhead small{color:#D9C68E}
+  .bplus{background:#1E212B;color:#FFD54A;border-color:#F5B700}
+  .bminus{background:#5A5F70;color:#fff}
+  .todaybadge{background:#3A3115;color:#FFE9A6;border-color:#F5B700}
+  .todaybadge .tk{color:#D9C68E}
+}}
 .nbtns.four{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:520px}
 .nbtns.four .nbtn{justify-content:center;font-size:20px;padding:12px 14px}
 .nbtn.later{background:#7C5CD6;color:#fff}
