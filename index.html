@@ -75,7 +75,8 @@ thead th{background:var(--t);color:var(--c);font-family:var(--display);font-weig
 thead th small{display:block;font-family:var(--body);font-size:11px;color:var(--muted);line-height:1}
 th.today{background:var(--c);color:#fff}
 th.today small{color:#fff}
-td.nm,th.nm{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1;min-width:220px}
+td.nm,th.nm{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1;width:255px;min-width:255px;max-width:255px}
+thead th.nm{word-break:keep-all;line-height:1.2;padding-right:8px}
 thead th.nm{background:var(--t);padding-left:12px}
 .hab{display:flex;align-items:center;gap:8px;padding:6px 10px;width:100%;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:zoom-in}
 .hab:hover .n{text-decoration:underline;text-decoration-color:var(--c);text-underline-offset:3px}
@@ -190,6 +191,7 @@ tfoot td.tot{background:var(--star-soft)}
 .pill.ok{background:var(--good);color:#fff}
 .pill.wait{background:var(--line);color:var(--muted)}
 form{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+#addForm{flex-direction:column;flex-wrap:nowrap;align-items:stretch}
 label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-height:38px}
 .list{display:flex;flex-direction:column}
@@ -281,9 +283,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
   <section class="panel" id="v-edit" hidden>
     <div class="row"><h2>항목 관리</h2><span class="sp"></span><span class="hint">고친 내용은 칸을 벗어나면 바로 저장돼요</span></div>
     <div class="tabsetbox"><b>사용할 탭</b><div id="eTabs" class="row"></div><span class="hint">체크한 탭만 체크하기·별 세기·변화 보기에 나와요. 끈 탭의 지난 기록은 그대로 남아요.</span></div>
-    <div class="tabsetbox"><b>기록 백업</b><div class="row"><button type="button" class="btn" id="bkOut">백업 파일 저장</button><button type="button" class="btn" id="bkIn">백업 불러오기</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div><span class="hint" id="bkMsg">기록은 이 아이패드에만 저장돼요. 가끔 백업 파일을 저장해 두세요.</span></div>
     <div class="chips" id="eChips"></div>
-    <div class="ed" id="eList"></div>
     <form id="addForm" class="panel" style="padding:12px;gap:8px">
       <h2 style="font-size:18px">새 항목 추가</h2>
       <div class="er" style="border:0;padding:0">
@@ -293,7 +293,9 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
         <button class="btn primary" type="submit">추가</button>
       </div>
     </form>
+    <div class="ed" id="eList"></div>
     <div id="offWrap"><h2 style="font-size:18px;margin-bottom:6px">지운 항목</h2><p class="hint" style="margin:0 0 6px">지운 항목의 지난 기록과 별은 그대로 남아요. 되살리면 다시 체크판에 나와요.</p><div class="list" id="offList"></div></div>
+    <div class="tabsetbox"><b>기록 백업</b><div class="row"><button type="button" class="btn" id="bkOut">백업 파일 저장</button><button type="button" class="btn" id="bkIn">백업 불러오기</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div><span class="hint" id="bkMsg">기록은 이 아이패드에만 저장돼요. 가끔 백업 파일을 저장해 두세요.</span></div>
   </section>
 </div>
 
