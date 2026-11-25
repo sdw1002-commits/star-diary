@@ -260,6 +260,7 @@ input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var
     <h1>이현이의 반짝이는 하루</h1>
     <button class="btn nightbtn" id="goNight">오늘 밤 별 세기</button>
     <button class="btn syncbtn" id="syncBtn" hidden>완료</button>
+    <button class="btn" id="connBtn" hidden>기기 연결</button>
     <span class="todaybadge" id="todayBadge" title="오늘 모은 별"><span class="tk">오늘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 6.1 6.7.8-5 4.6 1.4 6.6L12 17.3l-5.9 3.4 1.4-6.6-5-4.6 6.7-.8z" fill="#F5B700"/></svg><b id="todayN">0</b><span class="tk">개</span></span>
     <span class="status" id="stat">불러오는 중…</span>
   </div>
@@ -838,7 +839,10 @@ function famFromHash(){const m=location.hash.match(/^#family=([A-Za-z0-9]{24,64}
   history.replaceState(null,'',location.pathname+location.search+'#check');showView();return true}
 famFromHash();
 addEventListener('hashchange',()=>{if(famFromHash()){syncUI();syncNow(false)}});
-function syncUI(){syncBtn.hidden=!FAM;famBox.hidden=!FAM}
+function syncUI(){syncBtn.hidden=!FAM;famBox.hidden=!FAM;connBtn.hidden=!!FAM}
+connBtn.onclick=()=>{const v=prompt('받은 연결 링크(또는 코드)를 붙여 넣어 주세요');if(!v)return;
+  const m=v.trim().match(/(?:family=)?([A-Za-z0-9]{24,64})\s*$/);if(!m){alert('연결 링크가 올바르지 않아요. 링크 전체를 다시 붙여 넣어 주세요.');return}
+  FAM=m[1];try{localStorage.setItem('family',FAM)}catch(_){}syncUI();setStatus('연결했어요. 다른 기기 기록을 받아오는 중…');syncNow(false)};
 async function fsGet(){const r=await fetch(FS+FAM,{cache:'no-store'});if(r.status===404)return{d:{},t:{},ut:null};if(!r.ok)throw new Error('get '+r.status);
   const j=await r.json();let v={};try{v=JSON.parse(j.fields&&j.fields.data&&j.fields.data.stringValue||'{}')}catch(_){}
   return{d:v.d&&typeof v.d==='object'?v.d:{},t:v.t&&typeof v.t==='object'?v.t:{},ut:j.updateTime}}
